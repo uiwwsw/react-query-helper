@@ -5,6 +5,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
+  "private": false,
   "bin": {
     "react-query-helper": "./dist/cli.js"
   },
@@ -14,7 +15,7 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
