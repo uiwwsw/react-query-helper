@@ -4,27 +4,27 @@
 
 ## 🚀 소개
 
-`React Query Helper`는 기존 TypeScript API 파일에서 React Query 훅과 옵션 객체를 자동으로 생성해주는 강력한 CLI 도구입니다. 반복적인 React Query 설정 작업을 줄여 개발 생산성을 극대화하고, 일관된 코드 스타일을 유지할 수 있도록 돕습니다.
+`React Query Helper`는 `rqh.config.ts` 파일에 정의된 설정을 기반으로, 지정된 TypeScript API 파일들을 실시간으로 감지하거나 일괄 처리하여 React Query 훅과 옵션 객체를 자동으로 생성해주는 강력한 CLI 도구입니다. 이 도구는 반복적인 React Query 설정 작업을 획기적으로 줄여 개발 생산성을 극대화하고, 프로젝트 전반에 걸쳐 일관된 코드 스타일을 유지할 수 있도록 돕습니다.
 
 API 파일의 변경을 감지하여 실시간으로 관련 React Query 코드를 업데이트하거나, 한 번의 명령으로 전체 프로젝트의 코드를 생성할 수 있습니다.
 
 ## ✨ 주요 기능
 
--   **자동 코드 생성**: TypeScript API 파일에 정의된 함수를 기반으로 React Query 훅 (예: `useGetUserQuery`, `useCreateUserMutation`) 및 옵션 객체를 자동으로 생성합니다.
--   **파일 변경 감지 (Watch Mode)**: `--watch` 모드를 통해 소스 API 파일의 변경 사항을 실시간으로 감지하고, 관련 React Query 코드를 즉시 업데이트합니다.
--   **일괄 생성 (Generate Mode)**: `--generate` 모드를 사용하여 프로젝트 내 모든 API 파일에 대한 React Query 코드를 한 번에 생성합니다.
--   **설정 파일 기반**: `rqh.config.ts` 파일을 통해 소스 디렉토리, 출력 디렉토리, 무시할 파일 등을 유연하게 설정할 수 있습니다.
+-   **설정 파일 기반 자동화 (`rqh.config.ts`)**: `rqh.config.ts` 파일을 통해 API 소스 디렉토리, 생성될 React Query 코드의 출력 디렉토리, 무시할 파일 목록 등을 유연하게 설정할 수 있습니다. 이 설정에 따라 모든 자동화 작업이 수행됩니다.
+-   **실시간 변경 감지 (Watch Mode)**: `rqh.config.ts`에 설정된 `sourceDir` 내의 TypeScript API 파일 변경 사항을 실시간으로 감지합니다. 파일이 추가, 변경, 삭제될 때마다 해당 파일에 대한 React Query 훅과 옵션 코드를 자동으로 업데이트하여 개발 워크플로우를 간소화합니다.
+-   **일괄 코드 생성 (Generate Mode)**: `rqh.config.ts`에 설정된 `sourceDir` 내의 모든 API 파일에 대해 React Query 코드를 한 번에 생성합니다. 주로 프로젝트 초기 설정 시 또는 전체 코드 재생성이 필요할 때 유용합니다.
+-   **자동 코드 생성**: TypeScript API 파일에 정의된 함수를 기반으로 `useQuery`, `useMutation`, `useInfiniteQuery`와 같은 React Query 훅 및 관련 옵션 객체를 자동으로 생성합니다.
 -   **Prettier 통합**: 생성된 코드는 자동으로 Prettier를 통해 포맷팅되어 일관된 코드 스타일을 유지합니다.
 
 ## 📦 설치
 
-`React Query Helper`는 [Bun](https://bun.sh/) 런타임을 사용하여 개발되었습니다. Bun이 설치되어 있지 않다면 먼저 설치해주세요.
-
 ```bash
-bun install
+bun add @uiwwsw/react-query-helper
 ```
 
 ## 🛠️ 사용법
+
+`React Query Helper`를 사용하기 위한 핵심 단계는 다음과 같습니다:
 
 ### 1. 설정 파일 (`rqh.config.ts`) 생성
 
@@ -43,26 +43,24 @@ const config = {
 export default config;
 ```
 
-### 2. 코드 생성
+### 2. 코드 생성 실행
+
+`rqh.config.ts` 설정이 완료되면, 다음 명령어를 통해 React Query 코드를 생성할 수 있습니다.
+
+#### 실시간 변경 감지 모드 (`--watch`)
+
+`rqh.config.ts`에 설정된 `sourceDir` 내의 API 파일 변경 사항을 실시간으로 감지하고, 해당 파일에 대한 React Query 코드를 자동으로 업데이트합니다. 개발 중 편리하게 사용할 수 있습니다.
+
+```bash
+react-query-helper --watch
+```
 
 #### 일괄 생성 모드 (`--generate`)
 
 `rqh.config.ts`에 설정된 `sourceDir` 내의 모든 API 파일에 대해 React Query 코드를 한 번에 생성합니다. 주로 초기 설정 시 또는 전체 코드 재생성이 필요할 때 사용합니다.
 
 ```bash
-bun run src/cli.ts --generate
-# 또는 package.json에 정의된 스크립트 사용
-bun generate
-```
-
-#### 변경 감지 모드 (`--watch`)
-
-`rqh.config.ts`에 설정된 `sourceDir` 내의 API 파일 변경 사항을 실시간으로 감지하고, 해당 파일에 대한 React Query 코드를 자동으로 업데이트합니다. 개발 중 편리하게 사용할 수 있습니다.
-
-```bash
-bun run src/cli.ts --watch
-# 또는 package.json에 정의된 스크립트 사용
-bun dev
+react-query-helper --generate
 ```
 
 ### 3. 생성된 코드 사용 예시
