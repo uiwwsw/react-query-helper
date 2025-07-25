@@ -1,15 +1,16 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
+  "license": "MIT",
   "files": [
     "dist"
   ],
   "bin": {
-    "@uiwwsw/react-query-helper": "./dist/cli.js"
+    "react-query-helper": "./dist/cli.js"
   },
   "publishConfig": {
     "access": "public"
