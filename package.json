@@ -10,7 +10,7 @@
     "dist"
   ],
   "bin": {
-    "react-query-helper": "./dist/cli.js"
+    "@uiwwsw/react-query-helper": "./dist/cli.js"
   },
   "publishConfig": {
     "access": "public"
