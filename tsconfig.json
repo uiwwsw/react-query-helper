@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    // Environment setup & latest features
+    "lib": ["esnext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "emitDeclarationOnly": true, // .d.ts 파일만 생성하도록 변경
+    "rootDir": "./src", // 소스 파일의 루트 디렉토리
+    "outDir": "./dist", // 컴파일된 파일이 저장될 디렉토리
+    "declaration": true, // .d.ts 파일 생성
+    "declarationMap": true, // .d.ts.map 파일 생성
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false
+  },
+  "include": ["src/index.ts", "src/cli.ts"]
+}
