@@ -1,0 +1,36 @@
+{
+  "name": "@uiwwsw/react-query-helper",
+  "version": "1.0.0",
+  "module": "dist/index.js",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "bin": {
+    "react-query-helper": "./dist/cli.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "build": "tsc && bun build src/cli.ts --outdir dist --target bun && bun build src/index.ts --outdir dist --target bun && rm -rf dist/core dist/utils dist/config.d.ts dist/config.d.ts.map dist/config.js && node scripts/prepend-shebang.cjs dist/cli.js",
+    "dev": "bun run src/cli.ts --watch",
+    "generate": "bun run src/cli.ts --generate"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^24.1.0",
+    "chokidar": "^4.0.3",
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.83.0"
+  }
+}
