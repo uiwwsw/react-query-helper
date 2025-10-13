@@ -1,11 +1,14 @@
 import type { FunctionInfo } from "./analyzer";
-import type { AutoQueryConfig } from "../config"; // AutoQueryConfig 임포트
+
+interface GenerateOptionsParams {
+  keySegments: string[];
+  templateImportPath: string;
+}
 
 export function generateOptionsCode(
   functionInfos: FunctionInfo[],
-  folderName: string,
-  fileName: string,
-  config: AutoQueryConfig // <-- config 매개변수 추가
+  importPath: string,
+  { keySegments, templateImportPath }: GenerateOptionsParams
 ): string {
   if (functionInfos.length === 0) {
     return "";
@@ -13,18 +16,14 @@ export function generateOptionsCode(
 
   const functionNames = functionInfos.map((info) => info.name);
 
-  // Generate import statements directly within generator.ts
-  let newContent = `import { ${functionNames.join(", ")} } from "${config.sourceDir}/${folderName}/${fileName}";
-`;
-  newContent += `import { queryOption, mutationOption, infiniteOption } from "${config.templateDir}";
-
-`;
+  let newContent = `import { ${functionNames.join(", ")} } from "${importPath}";\n`;
+  newContent += `import { queryOption, mutationOption, infiniteOption } from "${templateImportPath}";\n\n`;
 
   functionInfos.forEach((info) => {
-    const keyDeclaration = `export const ${info.name}Key = [\"${folderName}\", \"${info.name}\"];`;
+    const keyArray = JSON.stringify([...keySegments, info.name]);
     const keyName = `${info.name}Key`;
 
-    newContent += keyDeclaration + "\n";
+    newContent += `export const ${keyName} = ${keyArray} as const;\n`;
     newContent += `export const ${info.name}QueryOption = queryOption(${keyName}, ${info.name});\n`;
     newContent += `export const ${info.name}MutationOption = mutationOption(${keyName}, ${info.name});\n`;
     newContent += `export const ${info.name}InfiniteQueryOption = infiniteOption(${keyName}, ${info.name});\n\n`;

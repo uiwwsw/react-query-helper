@@ -1,13 +1,14 @@
 import { watch } from "chokidar";
-import { join, basename, dirname, extname } from "path";
 import {
-  readFileSync,
-  writeFileSync,
-  existsSync,
-  mkdirSync,
-  unlinkSync,
-  rmSync,
-} from "fs";
+  basename,
+  dirname,
+  extname,
+  join,
+  relative,
+  resolve,
+  sep,
+} from "path";
+import { writeFileSync, existsSync, mkdirSync, unlinkSync, rmSync } from "fs";
 import { analyzeFile } from "./core/analyzer";
 import { generateOptionsCode } from "./core/generator";
 import { loadConfig, type AutoQueryConfig } from "./config";
@@ -22,13 +23,41 @@ async function clearDirectory(directory: string) {
   mkdirSync(directory, { recursive: true });
 }
 
+function normalizeModulePath(pathLike: string, forceRelativePrefix = false) {
+  const normalized = pathLike.split(sep).join("/");
+  if (forceRelativePrefix) {
+    if (!normalized.startsWith(".") && !normalized.startsWith("/")) {
+      return `./${normalized}`;
+    }
+    return normalized;
+  }
+  return normalized;
+}
+
+function shouldProcess(filePath: string) {
+  if (filePath.endsWith(".d.ts")) {
+    return false;
+  }
+  const extension = extname(filePath).toLowerCase();
+  return extension === ".ts" || extension === ".tsx";
+}
+
 async function processFile(filePath: string) {
-  const relativePath = filePath.replace(
-    join(process.cwd(), config.sourceDir) + "\\",
-    ""
-  );
-  const folderName = basename(dirname(relativePath));
-  const fileName = basename(relativePath, extname(relativePath));
+  if (!shouldProcess(filePath)) {
+    return;
+  }
+
+  const sourceRoot = resolve(process.cwd(), config.sourceDir);
+  const outputRoot = resolve(process.cwd(), config.outputDir);
+  const relativePath = relative(sourceRoot, filePath);
+
+  if (relativePath.startsWith("..")) {
+    console.warn(`Skipping file outside of sourceDir: ${filePath}`);
+    return;
+  }
+
+  const relativeDir = dirname(relativePath);
+  const fileName = basename(filePath, extname(filePath));
 
   if (config.ignoredFiles?.includes(basename(filePath))) {
     console.log(`Skipping ignored file: ${filePath}`);
@@ -44,19 +73,43 @@ async function processFile(filePath: string) {
       return;
     }
 
+    const outputFolder =
+      relativeDir === "."
+        ? outputRoot
+        : join(outputRoot, relativeDir);
+    const outputFile = join(outputFolder, `${fileName}Options.ts`);
+
     const generatedCode = generateOptionsCode(
       functionInfos,
-      folderName,
-      fileName,
-      config
+      normalizeModulePath(
+        relative(
+          dirname(outputFile),
+          filePath.replace(new RegExp(`${extname(filePath)}$`), "")
+        ) || ".",
+        true
+      ),
+      {
+        keySegments:
+          relativeDir === "."
+            ? [fileName]
+            : relativeDir.split(sep).filter(Boolean),
+        templateImportPath:
+          config.templateDir && config.templateDir.startsWith(".")
+            ? normalizeModulePath(
+                relative(
+                  dirname(outputFile),
+                  resolve(process.cwd(), config.templateDir)
+                ) || ".",
+                true
+              )
+            : config.templateDir ?? "@uiwwsw/react-query-helper",
+      }
     );
 
-    const outputFolder = join(process.cwd(), config.outputDir, folderName);
     if (!existsSync(outputFolder)) {
       mkdirSync(outputFolder, { recursive: true });
     }
 
-    const outputFile = join(outputFolder, `${fileName}Options.ts`);
     const formattedCode = await prettier.format(generatedCode, {
       parser: "typescript",
     });
@@ -97,9 +150,7 @@ async function runGenerate() {
   });
 
   for (const file of files) {
-    if (extname(file) === ".ts") {
-      await processFile(file);
-    }
+    await processFile(file);
   }
   console.log("✅ Options generation completed!");
 }
@@ -121,36 +172,39 @@ async function runWatch() {
     depth: 99,
   })
     .on("add", async (filePath) => {
-      if (extname(filePath) === ".ts") {
-        console.log(`📄 File added: ${filePath}`);
-        await processFile(filePath);
+      if (!shouldProcess(filePath)) {
+        return;
       }
+      console.log(`📄 File added: ${filePath}`);
+      await processFile(filePath);
     })
     .on("change", async (filePath) => {
-      if (extname(filePath) === ".ts") {
-        console.log(`🔄 File changed: ${filePath}`);
-        await processFile(filePath);
+      if (!shouldProcess(filePath)) {
+        return;
       }
+      console.log(`🔄 File changed: ${filePath}`);
+      await processFile(filePath);
     })
     .on("unlink", async (filePath) => {
-      if (extname(filePath) === ".ts") {
-        console.log(`🗑️ File unlinked: ${filePath}`);
-        const relativePath = filePath.replace(
-          join(process.cwd(), config.sourceDir) + "\\",
-          ""
-        );
-        const folderName = basename(dirname(relativePath));
-        const fileName = basename(relativePath, extname(relativePath));
-        const outputFile = join(
-          process.cwd(),
-          config.outputDir,
-          folderName,
-          `${fileName}Options.ts`
-        );
-        if (existsSync(outputFile)) {
-          unlinkSync(outputFile);
-          console.log(`🗑️ Deleted ${outputFile}`);
-        }
+      if (!shouldProcess(filePath)) {
+        return;
+      }
+      console.log(`🗑️ File unlinked: ${filePath}`);
+      const sourceRoot = resolve(process.cwd(), config.sourceDir);
+      const outputRoot = resolve(process.cwd(), config.outputDir);
+      const relativePath = relative(sourceRoot, filePath);
+      if (relativePath.startsWith("..")) {
+        return;
+      }
+      const relativeDir = dirname(relativePath);
+      const fileName = basename(filePath, extname(filePath));
+      const outputFile = join(
+        relativeDir === "." ? outputRoot : join(outputRoot, relativeDir),
+        `${fileName}Options.ts`
+      );
+      if (existsSync(outputFile)) {
+        unlinkSync(outputFile);
+        console.log(`🗑️ Deleted ${outputFile}`);
       }
     })
     .on("error", (error) => console.error(`❌ Watcher error: ${error}`));
