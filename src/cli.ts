@@ -8,7 +8,7 @@ import {
   resolve,
   sep,
 } from "path";
-import { writeFileSync, existsSync, mkdirSync, unlinkSync, rmSync } from "fs";
+import { writeFileSync, existsSync, mkdirSync, unlinkSync } from "fs";
 import { analyzeFile } from "./core/analyzer";
 import { generateOptionsCode } from "./core/generator";
 import { loadConfig, type AutoQueryConfig } from "./config";
@@ -16,11 +16,10 @@ import prettier from "prettier";
 
 let config: AutoQueryConfig;
 
-async function clearDirectory(directory: string) {
-  if (existsSync(directory)) {
-    rmSync(directory, { recursive: true, force: true });
+function ensureDirectory(directory: string) {
+  if (!existsSync(directory)) {
+    mkdirSync(directory, { recursive: true });
   }
-  mkdirSync(directory, { recursive: true });
 }
 
 function normalizeModulePath(pathLike: string, forceRelativePrefix = false) {
@@ -127,8 +126,8 @@ async function runGenerate() {
   const sourcePath = join(process.cwd(), config.sourceDir);
   const outputRootPath = join(process.cwd(), config.outputDir);
 
-  await clearDirectory(outputRootPath);
-  console.log(`🧹 Cleared existing files in ${outputRootPath}`);
+  ensureDirectory(outputRootPath);
+  console.log(`📁 Ensured output directory exists at ${outputRootPath}`);
 
   const files = await new Promise<string[]>((resolve, reject) => {
     const results: string[] = [];
@@ -162,8 +161,8 @@ async function runWatch() {
   const sourcePath = join(process.cwd(), config.sourceDir);
   const outputRootPath = join(process.cwd(), config.outputDir);
 
-  await clearDirectory(outputRootPath);
-  console.log(`🧹 Cleared existing files in ${outputRootPath}`);
+  ensureDirectory(outputRootPath);
+  console.log(`📁 Ensured output directory exists at ${outputRootPath}`);
 
   watch(sourcePath, {
     ignored:
