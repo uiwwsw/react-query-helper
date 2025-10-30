@@ -6,20 +6,20 @@ import type {
 } from "@tanstack/react-query";
 // Define type aliases for the full function signatures
 type QueryOptionType = <T extends unknown[], J>(
-  key: string[],
+  key: readonly unknown[],
   fn: (...payload: T) => Promise<J>
 ) => (...payload: T) => UseQueryOptions<J>;
 type MutationOptionType = <T, K>(
-  key: string[],
+  key: readonly unknown[],
   fn: MutationFunction<T, K>
 ) => () => UseMutationOptions<T, unknown, K>;
 type InfiniteOptionType = <T extends unknown[], K>(
-  key: string[],
+  key: readonly unknown[],
   fn: (...payload: T) => Promise<K>
 ) => (...payload: T) => UseInfiniteQueryOptions<K, unknown, K>;
 
 export const queryOption: QueryOptionType = <T extends unknown[], J>(
-  key: string[],
+  key: readonly unknown[],
   fn: (...payload: T) => Promise<J>
 ) => {
   return (...payload: T): UseQueryOptions<J> => ({
@@ -33,7 +33,7 @@ export const queryOption: QueryOptionType = <T extends unknown[], J>(
 };
 
 export const mutationOption: MutationOptionType = <T, K>(
-  key: string[],
+  key: readonly unknown[],
   fn: MutationFunction<T, K>
 ) => {
   return (): UseMutationOptions<T, unknown, K> => ({
@@ -43,7 +43,7 @@ export const mutationOption: MutationOptionType = <T, K>(
   });
 };
 export const infiniteOption: InfiniteOptionType = <T extends unknown[], K>(
-  key: string[],
+  key: readonly unknown[],
   fn: (...payload: T) => Promise<K>
 ) => {
   return (...payload: T): UseInfiniteQueryOptions<K, unknown, K> => ({
