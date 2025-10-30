@@ -1,178 +1,170 @@
-# React Query Helper
+<p align="center">
+  <img src="./assets/logo.svg" alt="React Query Helper Logo" width="160" />
+</p>
 
-![React Query Helper Logo](https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/logo.png) <!-- 로고 이미지가 있다면 여기에 추가하세요. 없으면 이 줄을 삭제하거나 주석 처리하세요. -->
+<h1 align="center">React Query Helper</h1>
 
-## 🚀 소개
+<p align="center">
+  <a href="README_EN.md">🇺🇸 English</a> · <strong>🇰🇷 한국어</strong>
+</p>
 
-`React Query Helper`는 `rqh.config.ts` 파일에 정의된 설정을 기반으로, 지정된 TypeScript API 파일들을 실시간으로 감지하거나 일괄 처리하여 React Query 훅과 옵션 객체를 자동으로 생성해주는 강력한 CLI 도구입니다. 이 도구는 반복적인 React Query 설정 작업을 획기적으로 줄여 개발 생산성을 극대화하고, 프로젝트 전반에 걸쳐 일관된 코드 스타일을 유지할 수 있도록 돕습니다.
+<p align="center">
+  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/v/@uiwwsw/react-query-helper.svg?color=2563eb" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/dm/@uiwwsw/react-query-helper.svg?color=9333ea" alt="npm downloads" /></a>
+  <a href="https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981.svg" alt="license" /></a>
+  <img src="https://img.shields.io/badge/Node.js-%3E%3D18.0-000000.svg?logo=node.js" alt="node version" />
+  <img src="https://img.shields.io/badge/Bun-ready-f97316.svg?logo=bun" alt="bun ready" />
+</p>
 
-API 파일의 변경을 감지하여 실시간으로 관련 React Query 코드를 업데이트하거나, 한 번의 명령으로 전체 프로젝트의 코드를 생성할 수 있습니다.
+> React Query Helper는 TypeScript API 함수로부터 React Query 훅과 옵션 객체를 자동 생성해 주는 CLI 도구입니다. 설정만 해두면 반복적인 훅 작성 시간을 절약하고 프로젝트 전체에 걸쳐 일관된 데이터 패칭 규칙을 유지할 수 있습니다.
 
-## ✨ 주요 기능
+---
 
--   **설정 파일 기반 자동화 (`rqh.config.ts`)**: `rqh.config.ts` 파일을 통해 API 소스 디렉토리, 생성될 React Query 코드의 출력 디렉토리, 무시할 파일 목록 등을 유연하게 설정할 수 있습니다. 이 설정에 따라 모든 자동화 작업이 수행됩니다.
--   **실시간 변경 감지 (Watch Mode)**: `rqh.config.ts`에 설정된 `sourceDir` 내의 TypeScript API 파일 변경 사항을 실시간으로 감지합니다. 파일이 추가, 변경, 삭제될 때마다 해당 파일에 대한 React Query 훅과 옵션 코드를 자동으로 업데이트하여 개발 워크플로우를 간소화합니다.
--   **일괄 코드 생성 (Generate Mode)**: `rqh.config.ts`에 설정된 `sourceDir` 내의 모든 API 파일에 대해 React Query 코드를 한 번에 생성합니다. 주로 프로젝트 초기 설정 시 또는 전체 코드 재생성이 필요할 때 유용합니다.
--   **자동 코드 생성**: TypeScript API 파일에 정의된 함수를 기반으로 `useQuery`, `useMutation`, `useInfiniteQuery`와 같은 React Query 훅 및 관련 옵션 객체를 자동으로 생성합니다.
--   **Prettier 통합**: 생성된 코드는 자동으로 Prettier를 통해 포맷팅되어 일관된 코드 스타일을 유지합니다.
+## 목차
 
-## 📦 설치
+- [주요 특징](#주요-특징)
+- [빠른 시작](#빠른-시작)
+  - [설치](#설치)
+  - [설정 파일 만들기](#설정-파일-만들기)
+  - [코드 생성 실행](#코드-생성-실행)
+- [CLI 명령어](#cli-명령어)
+- [설정 옵션](#설정-옵션)
+- [생성 결과 예시](#생성-결과-예시)
+- [템플릿 커스터마이징](#템플릿-커스터마이징)
+- [베스트 프랙티스](#베스트-프랙티스)
+- [스타 히스토리](#스타-히스토리)
+- [기여](#기여)
+- [라이선스](#라이선스)
+
+## 주요 특징
+
+- **설정 기반 자동화**: `rqh.config.ts`만 구성하면 API 디렉토리 감지부터 출력 디렉토리 지정까지 모두 자동화됩니다.
+- **Watch & Generate 모드**: 개발 중 실시간 감시(`--watch`), 초기 세팅이나 재생성 시 일괄 생성(`--generate`)을 모두 지원합니다.
+- **일관된 옵션 관리**: `queryOption`, `mutationOption`, `infiniteOption` 유틸리티로 전역 캐싱 전략과 에러 핸들링을 통일할 수 있습니다.
+- **Prettier 통합**: 생성된 파일은 자동으로 포맷팅되어 코드 리뷰 시 불필요한 변경을 줄입니다.
+- **템플릿 확장성**: 기본 템플릿 대신 사용자 정의 템플릿을 지정해 조직의 코딩 규칙을 쉽게 반영할 수 있습니다.
+
+## 빠른 시작
+
+### 설치
 
 ```bash
 bun add @uiwwsw/react-query-helper
+# 또는
+npm install --save-dev @uiwwsw/react-query-helper
 ```
 
-## 🛠️ 사용법
+### 설정 파일 만들기
 
-`React Query Helper`를 사용하기 위한 핵심 단계는 다음과 같습니다:
+루트에 `rqh.config.ts` 파일을 생성하고 다음과 같이 채워주세요.
 
-### 1. 설정 파일 (`rqh.config.ts`) 생성
-
-프로젝트 루트에 `rqh.config.ts` 파일을 생성하고, **API 파일이 위치한 디렉토리(`sourceDir`)**와 **생성된 코드가 저장될 디렉토리(`outputDir`)**를 설정합니다. 이 경로는 프로젝트의 루트 디렉토리를 기준으로 합니다.
-
-```typescript
+```ts
 // rqh.config.ts
-/** @type {import('./src/config').AutoQueryConfig} */
-const config = {
-  sourceDir: "./libs", // API 함수가 정의된 TypeScript 파일들이 있는 디렉토리 (예: libs/users/api.ts)
-  outputDir: "./src/options", // React Query 훅 및 옵션 파일이 생성될 디렉토리
-  // ignoredFiles: ["some-ignored-file.ts"], // (선택 사항) 코드 생성에서 제외할 파일 이름들의 배열
-  // templateDir: "./custom-templates", // (선택 사항) 사용자 정의 템플릿 디렉토리
+import type { AutoQueryConfig } from "./src/config";
+
+const config: AutoQueryConfig = {
+  sourceDir: "./libs",        // API 함수들이 위치한 경로
+  outputDir: "./src/options", // 생성된 코드가 저장될 경로
+  // ignoredFiles: ["types.ts"],
+  // templateDir: "./custom-templates",
 };
 
 export default config;
 ```
 
-### 2. 코드 생성 실행
+### 코드 생성 실행
 
-`rqh.config.ts` 설정이 완료되면, 다음 명령어를 통해 React Query 코드를 생성할 수 있습니다.
-
-#### 실시간 변경 감지 모드 (`--watch`)
-
-`rqh.config.ts`에 설정된 `sourceDir` 내의 API 파일 변경 사항을 실시간으로 감지하고, 해당 파일에 대한 React Query 코드를 자동으로 업데이트합니다. 개발 중 편리하게 사용할 수 있습니다.
-
-> ⚠️ `react-query-helper --watch` 명령을 바로 실행하면, 프로젝트 로컬에 설치된 바이너리를 찾지 못해 동작하지 않을 수 있습니다. `package.json`에 스크립트를 정의해 두면 항상 동일한 명령으로 실행할 수 있어 안전합니다.
-
-프로젝트의 `package.json`에 다음과 같이 스크립트를 추가한 뒤, `bun run watch` (또는 `bun watch`) 명령으로 실행하는 방법을 권장합니다.
+`package.json`에 스크립트를 추가한 뒤 CLI를 실행하면 됩니다.
 
 ```jsonc
 // package.json
 {
   "scripts": {
-    "dev": "bun --hot src/index.tsx",
     "watch": "react-query-helper --watch",
-    "start": "NODE_ENV=production bun src/index.tsx",
-    "build": "bun run build.ts"
+    "generate": "react-query-helper --generate"
   }
 }
 ```
 
-이제 아래 명령만 입력하면 됩니다.
-
 ```bash
-bun run watch
+bun run watch      # 실시간 변경 감지
+bun run generate   # 전체 파일 일괄 생성
 ```
 
-#### 일괄 생성 모드 (`--generate`)
+## CLI 명령어
 
-`rqh.config.ts`에 설정된 `sourceDir` 내의 모든 API 파일에 대해 React Query 코드를 한 번에 생성합니다. 주로 초기 설정 시 또는 전체 코드 재생성이 필요할 때 사용합니다.
+| 명령어 | 설명 |
+| --- | --- |
+| `react-query-helper --watch` | `sourceDir`를 감시하여 변경될 때마다 코드를 갱신합니다. |
+| `react-query-helper --generate` | `sourceDir` 내 모든 API 파일을 분석하고 한 번에 코드를 생성합니다. |
+| `react-query-helper --help` | 사용 가능한 모든 옵션을 확인합니다. |
 
-동일한 방식으로 `package.json`에 `"generate": "react-query-helper --generate"` 스크립트를 추가해 두면, 다음 명령으로 일괄 생성 모드를 실행할 수 있습니다.
+## 설정 옵션
 
-```bash
-bun run generate
-```
+| 옵션 | 필수 | 설명 |
+| --- | --- | --- |
+| `sourceDir` | ✅ | API 함수가 포함된 TypeScript 디렉토리 (루트 기준 경로) |
+| `outputDir` | ✅ | 생성된 훅과 옵션 파일이 저장될 디렉토리 |
+| `ignoredFiles` | ❌ | 코드 생성에서 제외할 파일 이름 배열 |
+| `templateDir` | ❌ | 사용자 정의 템플릿이 위치한 디렉토리 |
 
-### 3. 생성된 코드 사용 예시
+## 생성 결과 예시
 
-`rqh.config.ts`에 설정된 `outputDir` (예: `./src/options`)에 다음과 같은 파일이 생성됩니다. **생성되는 파일의 경로는 `sourceDir`와 `outputDir` 설정에 따라 달라집니다.**
-
-예를 들어, `sourceDir`이 `./libs`이고 `outputDir`이 `./src/options`일 때, `libs/users/api.ts` 파일에 `getUser` 함수가 있다면:
-
-```typescript
+```ts
 // libs/users/api.ts
 export const getUser = async (id: string) => {
   return { id, name: `User ${id}` };
 };
 
-export const createUser = (name: string) => {
+export const createUser = async (name: string) => {
   return { id: Date.now().toString(), name };
 };
-
-export function deleteUser(id: string) {
-  return { success: true, id };
-}
 ```
 
-`src/options/users/apiOptions.ts`와 같은 파일이 `outputDir` 내에 생성될 수 있습니다. (정확한 파일명은 `analyzer.ts`와 `generator.ts`의 로직에 따라 달라질 수 있습니다.)
-
-```typescript
-// src/options/users/apiOptions.ts (예시 - 경로는 rqh.config.ts 설정에 따라 달라짐)
-import { getUser, createUser, deleteUser } from "../../../libs/users/api"; // API 파일 경로도 상대적으로 참조됩니다.
+```ts
+// src/options/users/apiOptions.ts (자동 생성)
+import { getUser, createUser } from "../../../libs/users/api";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryOption, mutationOption } from "@uiwwsw/react-query-helper/utils/query"; // @src/utils/query.ts에서 가져온 유틸리티 함수
+import { queryOption, mutationOption } from "@uiwwsw/react-query-helper/utils/query";
 
-// getUser에 대한 React Query 훅
-export const useGetUserQuery = (id: string, options?: any) => {
+export const useGetUserQuery = (id: string) => {
   return useQuery(queryOption(["users", id], () => getUser(id))(id));
 };
 
-// createUser에 대한 React Query 뮤테이션 훅
-export const useCreateUserMutation = (options?: any) => {
+export const useCreateUserMutation = () => {
   return useMutation(mutationOption(["users"], createUser)());
 };
+```
 
-// deleteUser에 대한 React Query 뮤테이션 훅
-export const useDeleteUserMutation = (options?: any) => {
-  return useMutation(mutationOption(["users"], deleteUser)());
+## 템플릿 커스터마이징
+
+조직 맞춤 코딩 스타일이 필요하다면 템플릿 디렉토리를 지정하세요.
+
+```ts
+const config: AutoQueryConfig = {
+  sourceDir: "./libs",
+  outputDir: "./src/options",
+  templateDir: "./custom-templates", // EJS 템플릿 디렉토리
 };
 ```
 
-**`@uiwwsw/react-query-helper/utils/query.ts`의 강력함:**
+템플릿 파일에서 React Query 옵션, 에러 핸들링, import 경로 등을 마음껏 수정할 수 있습니다. 변경 사항은 다음 실행 시 바로 반영됩니다.
 
-위 예시에서 볼 수 있듯이, `queryOption`, `mutationOption`, `infiniteOption`과 같은 유틸리티 함수들을 활용하여 React Query 훅의 기본 설정을 중앙에서 관리하고 재사용할 수 있습니다. 예를 들어, 모든 쿼리에 `staleTime: Infinity`나 `refetchOnWindowFocus: false`와 같은 공통 옵션을 적용하고 싶다면, `src/utils/query.ts` 파일 내의 해당 유틸리티 함수를 수정하는 것만으로 모든 생성된 훅에 반영됩니다. 이는 일관된 캐싱 전략, 에러 처리, 재시도 로직 등을 쉽게 적용할 수 있게 하여 개발 효율성을 크게 높여줍니다.
+## 베스트 프랙티스
 
-이제 애플리케이션에서 이 훅들을 가져와 사용할 수 있습니다. **가져오는 경로 또한 `rqh.config.ts`의 `outputDir` 설정에 따라 달라집니다.**
+- **하나의 API = 하나의 훅** 구조를 유지하면 캐시 키 관리가 쉬워집니다.
+- 생성된 파일은 버전 관리 시스템(Git)에 커밋하여 배포 시 자동 생성 과정을 피하세요.
+- `queryOption` 유틸 함수에서 글로벌 옵션(`staleTime`, `retry`, `refetchOnWindowFocus`)을 정의하면 팀 전체 규칙을 손쉽게 통일할 수 있습니다.
+- Watch 모드 사용 시 IDE 저장 포맷터와 충돌이 없도록 저장 시점 포맷팅을 맞춰 주세요.
 
-```typescript
-// YourComponent.tsx
-import { useGetUserQuery, useCreateUserMutation } from "../options/users/apiOptions"; // 경로는 rqh.config.ts 설정에 따라 달라짐
+## 스타 히스토리
 
-function UserProfile({ userId }: { userId: string }) {
-  const { data: user, isLoading } = useGetUserQuery(userId);
-  const createUserMutation = useCreateUserMutation({
-    onSuccess: () => {
-      console.log("User created!");
-    },
-  });
+[![Star History Chart](https://api.star-history.com/svg?repos=uiwwsw/react-query-helper&type=Date)](https://star-history.com/#uiwwsw/react-query-helper&Date)
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!user) return <div>User not found.</div>;
+## 기여
 
-  return (
-    <div>
-      <h1>{user.name}</h1>
-      <button onClick={() => createUserMutation.mutate("New User")}>
-        Create New User
-      </button>
-    </div>
-  );
-}
-```
+버그 제보, 기능 제안, 문서 개선 등 모든 기여를 환영합니다. 이슈를 등록하거나 Pull Request를 보내 주세요.
 
-## ⚙️ 설정 (`rqh.config.ts`)
+## 라이선스
 
-`rqh.config.ts` 파일에서 다음 `AutoQueryConfig` 인터페이스에 정의된 옵션들을 설정할 수 있습니다.
-
--   `sourceDir`: (필수) API 함수가 정의된 TypeScript 파일들이 있는 디렉토리의 경로입니다. 이 디렉토리 내의 `.ts` 파일들을 분석하여 React Query 코드를 생성합니다. 프로젝트 루트를 기준으로 한 상대 경로를 사용합니다.
--   `outputDir`: (필수) 생성된 React Query 훅 및 옵션 파일이 저장될 디렉토리의 경로입니다. 프로젝트 루트를 기준으로 한 상대 경로를 사용합니다.
--   `ignoredFiles`: (선택 사항) 코드 생성 과정에서 무시할 파일 이름들의 배열입니다. (예: `["utils.ts", "types.ts"]`) 이 목록에 있는 파일은 `sourceDir` 내에 있더라도 코드가 생성되지 않습니다.
--   `templateDir`: (선택 사항) `React Query Helper`가 훅을 생성할 때 사용할 사용자 정의 템플릿 파일들이 있는 디렉토리의 경로입니다. 이 옵션을 설정하면 기본 템플릿 대신 지정된 템플릿을 사용하여 훅을 생성할 수 있습니다. 이를 통해 `queryOption`, `mutationOption` 등과 같은 사용자 정의 유틸리티 함수를 활용하여 생성되는 훅의 동작을 세밀하게 제어할 수 있습니다. 프로젝트 루트를 기준으로 한 상대 경로를 사용합니다. (예: `templateDir: "./custom-templates"`)
-
-## 🤝 기여
-
-버그 리포트, 기능 제안, 코드 기여 등 모든 형태의 기여를 환영합니다. 자세한 내용은 `CONTRIBUTING.md` 파일을 참조해주세요.
-
-## 📄 라이선스
-
-이 프로젝트는 [LICENSE](LICENSE) 파일에 명시된 라이선스에 따라 배포됩니다.
+이 프로젝트는 [MIT 라이선스](LICENSE)를 따릅니다.
