@@ -123,17 +123,25 @@ export const createUser = async (name: string) => {
 
 ```ts
 // src/options/users/apiOptions.ts (자동 생성)
-import { getUser, createUser } from "../../../libs/users/api";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryOption, mutationOption } from "@uiwwsw/react-query-helper/utils/query";
+import { createUser, getUser } from "../../../libs/users/api";
+import {
+  infiniteOption,
+  mutationOption,
+  queryOption,
+} from "@uiwwsw/react-query-helper";
 
-export const useGetUserQuery = (id: string) => {
-  return useQuery(queryOption(["users", id], () => getUser(id))(id));
-};
+export const getUserKey = ["users", "getUser"] as const;
+export const getUserQueryOption = queryOption(getUserKey, getUser);
+export const getUserMutationOption = mutationOption(getUserKey, getUser);
+export const getUserInfiniteQueryOption = infiniteOption(getUserKey, getUser);
 
-export const useCreateUserMutation = () => {
-  return useMutation(mutationOption(["users"], createUser)());
-};
+export const createUserKey = ["users", "createUser"] as const;
+export const createUserQueryOption = queryOption(createUserKey, createUser);
+export const createUserMutationOption = mutationOption(createUserKey, createUser);
+export const createUserInfiniteQueryOption = infiniteOption(
+  createUserKey,
+  createUser
+);
 ```
 
 ## 템플릿 커스터마이징
