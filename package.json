@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "bun run src/index.ts",
-    "build": "tsc && bun build src/cli.ts --outdir dist --target bun --external typescript --external prettier && bun build src/index.ts --outdir dist --target bun --external typescript --external prettier && rm -rf dist/core dist/utils dist/config.d.ts dist/config.d.ts.map dist/config.js && node scripts/prepend-shebang.cjs dist/cli.js",
+    "build": "tsc && bun build src/cli.ts --outdir dist --target bun --external typescript --external prettier && bun build src/index.ts --outdir dist --target bun --external typescript --external prettier && node scripts/prepend-shebang.cjs dist/cli.js",
     "dev": "bun run src/cli.ts --watch",
     "generate": "bun run src/cli.ts --generate"
   },
