@@ -51,16 +51,36 @@ export default config;
 
 `rqh.config.ts`에 설정된 `sourceDir` 내의 API 파일 변경 사항을 실시간으로 감지하고, 해당 파일에 대한 React Query 코드를 자동으로 업데이트합니다. 개발 중 편리하게 사용할 수 있습니다.
 
+> ⚠️ `react-query-helper --watch` 명령을 바로 실행하면, 프로젝트 로컬에 설치된 바이너리를 찾지 못해 동작하지 않을 수 있습니다. `package.json`에 스크립트를 정의해 두면 항상 동일한 명령으로 실행할 수 있어 안전합니다.
+
+프로젝트의 `package.json`에 다음과 같이 스크립트를 추가한 뒤, `bun run watch` (또는 `bun watch`) 명령으로 실행하는 방법을 권장합니다.
+
+```jsonc
+// package.json
+{
+  "scripts": {
+    "dev": "bun --hot src/index.tsx",
+    "watch": "react-query-helper --watch",
+    "start": "NODE_ENV=production bun src/index.tsx",
+    "build": "bun run build.ts"
+  }
+}
+```
+
+이제 아래 명령만 입력하면 됩니다.
+
 ```bash
-react-query-helper --watch
+bun run watch
 ```
 
 #### 일괄 생성 모드 (`--generate`)
 
 `rqh.config.ts`에 설정된 `sourceDir` 내의 모든 API 파일에 대해 React Query 코드를 한 번에 생성합니다. 주로 초기 설정 시 또는 전체 코드 재생성이 필요할 때 사용합니다.
 
+동일한 방식으로 `package.json`에 `"generate": "react-query-helper --generate"` 스크립트를 추가해 두면, 다음 명령으로 일괄 생성 모드를 실행할 수 있습니다.
+
 ```bash
-react-query-helper --generate
+bun run generate
 ```
 
 ### 3. 생성된 코드 사용 예시
