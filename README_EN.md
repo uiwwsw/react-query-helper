@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/logo.svg" alt="React Query Helper Logo" width="160" />
+  <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/logo.svg" alt="React Query Helper Logo" width="160" />
 </p>
 
 <h1 align="center">React Query Helper</h1>
