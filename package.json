@@ -1,11 +1,32 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "0.1.5",
+  "version": "1.0.0",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "license": "MIT",
+  "description": "React Query Helper is a CLI tool that automatically generates React Query hooks and option objects from TypeScript API functions.",
+  "keywords": [
+    "react",
+    "react-query",
+    "tanstack-query",
+    "codegen",
+    "generator",
+    "cli",
+    "typescript",
+    "automation",
+    "hooks"
+  ],
+  "homepage": "https://github.com/uiwwsw/react-query-helper#readme",
+  "bugs": {
+    "url": "https://github.com/uiwwsw/react-query-helper/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uiwwsw/react-query-helper.git"
+  },
+  "author": "uiwwsw",
   "files": [
     "dist"
   ],

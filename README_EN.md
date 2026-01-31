@@ -11,7 +11,14 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/v/@uiwwsw/react-query-helper.svg?color=2563eb" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/dm/@uiwwsw/react-query-helper.svg?color=9333ea" alt="npm downloads" /></a>
+  <a href="https://bundlephobia.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/bundlephobia/minzip/@uiwwsw/react-query-helper.svg?color=10b981" alt="bundle size" /></a>
   <a href="https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981.svg" alt="license" /></a>
+  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/types/@uiwwsw/react-query-helper.svg?color=3178c6" alt="types" /></a>
+</p>
+<p align="center">
+  <a href="https://github.com/uiwwsw/react-query-helper"><img src="https://img.shields.io/github/stars/uiwwsw/react-query-helper?style=social" alt="github stars" /></a>
+</p>
+<p align="center">
   <img src="https://img.shields.io/badge/Node.js-%3E%3D18.0-000000.svg?logo=node.js" alt="node version" />
   <img src="https://img.shields.io/badge/Bun-ready-f97316.svg?logo=bun" alt="bun ready" />
 </p>
