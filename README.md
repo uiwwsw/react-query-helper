@@ -32,12 +32,12 @@
 - [주요 특징](#주요-특징)
 - [빠른 시작](#빠른-시작)
   - [설치](#설치)
-  - [설정 파일 만들기](#설정-파일-만들기)
+  - [초기 설정 파일 생성](#초기-설정-파일-생성)
   - [코드 생성 실행](#코드-생성-실행)
 - [CLI 명령어](#cli-명령어)
 - [설정 옵션](#설정-옵션)
 - [생성 결과 예시](#생성-결과-예시)
-- [템플릿 커스터마이징](#템플릿-커스터마이징)
+- [헬퍼 경로 커스터마이징](#헬퍼-경로-커스터마이징)
 - [베스트 프랙티스](#베스트-프랙티스)
 - [스타 히스토리](#스타-히스토리)
 - [기여](#기여)
@@ -46,10 +46,11 @@
 ## 주요 특징
 
 - **설정 기반 자동화**: `rqh.config.ts`만 구성하면 API 디렉토리 감지부터 출력 디렉토리 지정까지 모두 자동화됩니다.
+- **초기화 지원**: `react-query-helper --init`으로 기본 설정 파일을 바로 생성할 수 있습니다.
 - **Watch & Generate 모드**: 개발 중 실시간 감시(`--watch`), 초기 세팅이나 재생성 시 일괄 생성(`--generate`)을 모두 지원합니다.
 - **일관된 옵션 관리**: `queryOption`, `mutationOption`, `infiniteOption` 유틸리티로 전역 캐싱 전략과 에러 핸들링을 통일할 수 있습니다.
 - **Prettier 통합**: 생성된 파일은 자동으로 포맷팅되어 코드 리뷰 시 불필요한 변경을 줄입니다.
-- **템플릿 확장성**: 기본 템플릿 대신 사용자 정의 템플릿을 지정해 조직의 코딩 규칙을 쉽게 반영할 수 있습니다.
+- **헬퍼 import 경로 커스터마이징**: `templateDir`로 생성 코드가 참조할 헬퍼 모듈 경로를 바꿀 수 있습니다.
 
 ## 빠른 시작
 
@@ -61,19 +62,27 @@ bun add @uiwwsw/react-query-helper
 npm install --save-dev @uiwwsw/react-query-helper
 ```
 
-### 설정 파일 만들기
+### 초기 설정 파일 생성
 
-루트에 `rqh.config.ts` 파일을 생성하고 다음과 같이 채워주세요.
+설치 후 아래 명령으로 루트에 `rqh.config.ts`를 자동 생성할 수 있습니다.
+
+```bash
+npx react-query-helper --init
+# 또는
+bunx react-query-helper --init
+```
+
+생성되는 파일 예시는 다음과 같습니다.
 
 ```ts
 // rqh.config.ts
-import type { AutoQueryConfig } from "./src/config";
+import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
 
 const config: AutoQueryConfig = {
   sourceDir: "./libs",        // API 함수들이 위치한 경로
   outputDir: "./src/options", // 생성된 코드가 저장될 경로
-  // ignoredFiles: ["types.ts"],
-  // templateDir: "./custom-templates",
+  ignoredFiles: ["domain.ts", "adaptor.ts"],
+  templateDir: "@uiwwsw/react-query-helper",
 };
 
 export default config;
@@ -87,6 +96,7 @@ export default config;
 // package.json
 {
   "scripts": {
+    "init:rqh": "react-query-helper --init",
     "watch": "react-query-helper --watch",
     "generate": "react-query-helper --generate"
   }
@@ -102,6 +112,7 @@ bun run generate   # 전체 파일 일괄 생성
 
 | 명령어 | 설명 |
 | --- | --- |
+| `react-query-helper --init` | 루트에 기본 `rqh.config.ts` 파일을 생성합니다. 이미 있으면 덮어쓰지 않습니다. |
 | `react-query-helper --watch` | `sourceDir`를 감시하여 변경될 때마다 코드를 갱신합니다. |
 | `react-query-helper --generate` | `sourceDir` 내 모든 API 파일을 분석하고 한 번에 코드를 생성합니다. |
 | `react-query-helper --help` | 사용 가능한 모든 옵션을 확인합니다. |
@@ -113,7 +124,7 @@ bun run generate   # 전체 파일 일괄 생성
 | `sourceDir` | ✅ | API 함수가 포함된 TypeScript 디렉토리 (루트 기준 경로) |
 | `outputDir` | ✅ | 생성된 훅과 옵션 파일이 저장될 디렉토리 |
 | `ignoredFiles` | ❌ | 코드 생성에서 제외할 파일 이름 배열 |
-| `templateDir` | ❌ | 사용자 정의 템플릿이 위치한 디렉토리 |
+| `templateDir` | ❌ | 생성된 코드에서 `queryOption` 계열을 import 할 모듈 경로 또는 상대 디렉토리 |
 
 ## 생성 결과 예시
 
@@ -151,19 +162,27 @@ export const createUserInfiniteQueryOption = infiniteOption(
 );
 ```
 
-## 템플릿 커스터마이징
+## 헬퍼 경로 커스터마이징
 
-조직 맞춤 코딩 스타일이 필요하다면 템플릿 디렉토리를 지정하세요.
+조직 공용 헬퍼를 따로 두고 있다면 `templateDir`로 생성 코드의 import 경로를 바꿀 수 있습니다.
 
 ```ts
 const config: AutoQueryConfig = {
   sourceDir: "./libs",
   outputDir: "./src/options",
-  templateDir: "./custom-templates", // EJS 템플릿 디렉토리
+  templateDir: "./src/query-helpers",
 };
 ```
 
-템플릿 파일에서 React Query 옵션, 에러 핸들링, import 경로 등을 마음껏 수정할 수 있습니다. 변경 사항은 다음 실행 시 바로 반영됩니다.
+예를 들어 생성 파일은 기본 패키지 대신 아래처럼 지정한 경로를 import 하게 됩니다.
+
+```ts
+import {
+  queryOption,
+  mutationOption,
+  infiniteOption,
+} from "./src/query-helpers";
+```
 
 ## 베스트 프랙티스
 

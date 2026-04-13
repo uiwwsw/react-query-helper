@@ -32,12 +32,12 @@
 - [Why React Query Helper](#why-react-query-helper)
 - [Quick Start](#quick-start)
   - [Installation](#installation)
-  - [Create the Configuration File](#create-the-configuration-file)
+  - [Generate the Configuration File](#generate-the-configuration-file)
   - [Run the Generator](#run-the-generator)
 - [CLI Commands](#cli-commands)
 - [Configuration Options](#configuration-options)
 - [Sample Output](#sample-output)
-- [Custom Templates](#custom-templates)
+- [Custom Helper Imports](#custom-helper-imports)
 - [Best Practices](#best-practices)
 - [Star History](#star-history)
 - [Contributing](#contributing)
@@ -46,10 +46,11 @@
 ## Why React Query Helper
 
 - **Configuration-driven automation** – Define everything once in `rqh.config.ts` and let the CLI handle the rest.
+- **Built-in initialization** – Run `react-query-helper --init` to generate a starter config file instantly.
 - **Watch & Generate modes** – Use `--watch` during development for live updates or `--generate` for bootstrapping and regeneration.
 - **Consistent query options** – Centralize caching, retry, and error handling via `queryOption`, `mutationOption`, and `infiniteOption` utilities.
 - **Prettier integration** – All emitted files are formatted automatically to minimize noisy diffs.
-- **Template extensibility** – Override the default templates to reflect your team’s conventions and project architecture.
+- **Custom helper imports** – Use `templateDir` to change where generated files import `queryOption`, `mutationOption`, and `infiniteOption` from.
 
 ## Quick Start
 
@@ -63,19 +64,27 @@ yarn add --dev @uiwwsw/react-query-helper
 npm install --save-dev @uiwwsw/react-query-helper
 ```
 
-### Create the Configuration File
+### Generate the Configuration File
 
-Place `rqh.config.ts` in the project root.
+Generate `rqh.config.ts` in your project root with:
+
+```bash
+npx react-query-helper --init
+# or
+bunx react-query-helper --init
+```
+
+The generated file looks like this:
 
 ```ts
 // rqh.config.ts
-import type { AutoQueryConfig } from "./src/config";
+import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
 
 const config: AutoQueryConfig = {
   sourceDir: "./libs",        // Where your API functions live
   outputDir: "./src/options", // Where generated hooks are stored
-  // ignoredFiles: ["types.ts"],
-  // templateDir: "./custom-templates",
+  ignoredFiles: ["domain.ts", "adaptor.ts"],
+  templateDir: "@uiwwsw/react-query-helper",
 };
 
 export default config;
@@ -89,6 +98,7 @@ Add scripts to `package.json` for a consistent workflow.
 // package.json
 {
   "scripts": {
+    "init:rqh": "react-query-helper --init",
     "watch": "react-query-helper --watch",
     "generate": "react-query-helper --generate"
   }
@@ -104,6 +114,7 @@ bun run generate   # batch generation for every API file
 
 | Command | Description |
 | --- | --- |
+| `react-query-helper --init` | Creates a default `rqh.config.ts` file in the project root without overwriting an existing config. |
 | `react-query-helper --watch` | Watches `sourceDir` and regenerates hooks whenever files change. |
 | `react-query-helper --generate` | Parses every API file in `sourceDir` and generates hooks in one shot. |
 | `react-query-helper --help` | Displays the available options and usage details. |
@@ -115,7 +126,7 @@ bun run generate   # batch generation for every API file
 | `sourceDir` | ✅ | TypeScript directory containing your API functions (relative to the project root). |
 | `outputDir` | ✅ | Destination directory for generated hooks and option objects. |
 | `ignoredFiles` | ❌ | Array of filenames to exclude from generation. |
-| `templateDir` | ❌ | Directory with custom templates to override the defaults. |
+| `templateDir` | ❌ | Module path or relative directory used for importing `queryOption`, `mutationOption`, and `infiniteOption`. |
 
 ## Sample Output
 
@@ -153,19 +164,19 @@ export const createUserInfiniteQueryOption = infiniteOption(
 );
 ```
 
-## Custom Templates
+## Custom Helper Imports
 
-Specify a `templateDir` to align the generated code with your team’s guidelines.
+Point `templateDir` to your shared helper module if you want generated files to import from somewhere other than the package default.
 
 ```ts
 const config: AutoQueryConfig = {
   sourceDir: "./libs",
   outputDir: "./src/options",
-  templateDir: "./custom-templates", // Directory with your EJS templates
+  templateDir: "./src/query-helpers",
 };
 ```
 
-Update the templates to customize imports, hook signatures, option defaults, logging, and more. The generator will pick up your changes on the next run.
+For example, generated files will import from that path instead of `@uiwwsw/react-query-helper`.
 
 ## Best Practices
 
