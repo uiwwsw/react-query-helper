@@ -11,10 +11,27 @@ import {
 import { writeFileSync, existsSync, mkdirSync, unlinkSync } from "fs";
 import { analyzeFile } from "./core/analyzer";
 import { generateOptionsCode } from "./core/generator";
-import { loadConfig, type AutoQueryConfig } from "./config";
+import {
+  loadConfig,
+  resolveConfigPath,
+  type AutoQueryConfig,
+} from "./config";
 import prettier from "prettier";
 
 let config: AutoQueryConfig;
+
+const DEFAULT_CONFIG_FILE_NAME = "rqh.config.ts";
+const DEFAULT_CONFIG_TEMPLATE = `import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
+
+const config: AutoQueryConfig = {
+  sourceDir: "./libs",
+  outputDir: "./src/options",
+  ignoredFiles: ["domain.ts", "adaptor.ts"],
+  templateDir: "@uiwwsw/react-query-helper",
+};
+
+export default config;
+`;
 
 function ensureDirectory(directory: string) {
   if (!existsSync(directory)) {
@@ -39,6 +56,31 @@ function shouldProcess(filePath: string) {
   }
   const extension = extname(filePath).toLowerCase();
   return extension === ".ts" || extension === ".tsx";
+}
+
+function printUsage() {
+  console.log(
+    "Usage: react-query-helper [init | generate | watch | help]"
+  );
+  console.log(
+    "       react-query-helper [--init | --generate | --watch | --help]"
+  );
+}
+
+function runInit() {
+  const existingConfigPath = resolveConfigPath();
+
+  if (existingConfigPath) {
+    console.log(`Config already exists at ${existingConfigPath}`);
+    return;
+  }
+
+  const configPath = resolve(process.cwd(), DEFAULT_CONFIG_FILE_NAME);
+  writeFileSync(configPath, DEFAULT_CONFIG_TEMPLATE, "utf8");
+  console.log(`✅ Created ${configPath}`);
+  console.log("Next steps:");
+  console.log("1. Update sourceDir/outputDir if needed.");
+  console.log("2. Run `react-query-helper --generate`.");
 }
 
 async function processFile(filePath: string) {
@@ -212,11 +254,16 @@ async function runWatch() {
 }
 
 const args = process.argv.slice(2);
+const hasCommand = (...values: string[]) => values.some((value) => args.includes(value));
 
-if (args.includes("--watch")) {
+if (hasCommand("help", "--help")) {
+  printUsage();
+} else if (hasCommand("init", "--init")) {
+  runInit();
+} else if (hasCommand("watch", "--watch")) {
   runWatch();
-} else if (args.includes("--generate")) {
+} else if (hasCommand("generate", "--generate")) {
   runGenerate();
 } else {
-  console.log("Usage: bun run src/cli.ts [--watch | --generate]");
+  printUsage();
 }

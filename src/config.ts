@@ -1,5 +1,9 @@
-import { join } from "path";
 import { existsSync } from "fs";
+import { readFile, unlink, writeFile } from "fs/promises";
+import { randomUUID } from "crypto";
+import { dirname, extname, join } from "path";
+import { pathToFileURL } from "url";
+import ts from "typescript";
 
 export interface AutoQueryConfig {
   sourceDir: string; // API 함수가 있는 폴더 (예: './libs')
@@ -15,21 +19,77 @@ const defaultConfig: AutoQueryConfig = {
   templateDir: "@uiwwsw/react-query-helper",
 };
 
-export async function loadConfig(): Promise<AutoQueryConfig> {
-  const configPath = join(process.cwd(), "rqh.config.ts");
+const CONFIG_FILE_NAMES = [
+  "rqh.config.ts",
+  "rqh.config.mts",
+  "rqh.config.cts",
+  "rqh.config.js",
+  "rqh.config.mjs",
+  "rqh.config.cjs",
+] as const;
 
-  if (existsSync(configPath)) {
+const TYPESCRIPT_CONFIG_EXTENSIONS = new Set([".ts", ".mts", ".cts"]);
+
+async function importTypeScriptConfig(configPath: string) {
+  const source = await readFile(configPath, "utf8");
+  const transpiled = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.ESNext,
+      target: ts.ScriptTarget.ES2020,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      esModuleInterop: true,
+    },
+    fileName: configPath,
+  });
+
+  const tempFilePath = join(
+    dirname(configPath),
+    `.rqh.config.${randomUUID()}.mjs`
+  );
+
+  await writeFile(tempFilePath, transpiled.outputText, "utf8");
+
+  try {
+    return await import(pathToFileURL(tempFilePath).href);
+  } finally {
+    await unlink(tempFilePath).catch(() => undefined);
+  }
+}
+
+async function importConfig(configPath: string) {
+  if (TYPESCRIPT_CONFIG_EXTENSIONS.has(extname(configPath).toLowerCase())) {
+    return importTypeScriptConfig(configPath);
+  }
+
+  return import(pathToFileURL(configPath).href);
+}
+
+export function resolveConfigPath(cwd = process.cwd()) {
+  return CONFIG_FILE_NAMES.map((fileName) => join(cwd, fileName)).find(
+    (configPath) => existsSync(configPath)
+  );
+}
+
+export async function loadConfig(): Promise<AutoQueryConfig> {
+  const configPath = resolveConfigPath();
+
+  if (configPath) {
     try {
-      // Bun은 ESM을 지원하므로 dynamic import를 사용합니다.
-      const userConfig = (await import(configPath)).default;
-      // 기본 템플릿과 사용자 정의 템플릿을 병합
+      const importedConfig = await importConfig(configPath);
+      const userConfig = importedConfig.default ?? importedConfig;
+
+      if (!userConfig || typeof userConfig !== "object") {
+        console.error(`Config at ${configPath} must export an object.`);
+        return defaultConfig;
+      }
+
       const mergedConfig = {
         ...defaultConfig,
         ...userConfig,
       };
       return mergedConfig;
     } catch (error) {
-      console.error("Failed to load rqh.config.js:", error);
+      console.error(`Failed to load config from ${configPath}:`, error);
       return defaultConfig;
     }
   }

@@ -1,5 +1,6 @@
-/** @type {import('./src/config').AutoQueryConfig} */
-const config = {
+import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
+
+const config: AutoQueryConfig = {
   sourceDir: "./libs",
   outputDir: "./src/options",
 };
