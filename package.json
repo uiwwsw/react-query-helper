@@ -1,6 +1,6 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
@@ -62,6 +62,6 @@
     "typescript": "^5.8.3"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   }
 }
