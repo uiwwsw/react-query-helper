@@ -12,6 +12,7 @@ import { writeFileSync, existsSync, mkdirSync, unlinkSync } from "fs";
 import { analyzeFile } from "./core/analyzer";
 import { generateOptionsCode } from "./core/generator";
 import {
+  ConfigLoadError,
   loadConfig,
   resolveConfigPath,
   type AutoQueryConfig,
@@ -83,6 +84,24 @@ function runInit() {
   console.log("2. Run `react-query-helper --generate`.");
 }
 
+async function loadConfigOrExit() {
+  try {
+    return await loadConfig();
+  } catch (error) {
+    if (error instanceof ConfigLoadError) {
+      console.error(`❌ ${error.message}`);
+      if (error.cause) {
+        console.error(error.cause);
+      }
+    } else {
+      console.error("❌ Unexpected error while loading config:", error);
+    }
+
+    process.exitCode = 1;
+    return null;
+  }
+}
+
 async function processFile(filePath: string) {
   if (!shouldProcess(filePath)) {
     return;
@@ -109,7 +128,7 @@ async function processFile(filePath: string) {
     const functionInfos = analyzeFile(filePath);
     if (functionInfos.length === 0) {
       console.log(
-        `No functions found in ${filePath}. Skipping code generation.`
+        `No exported functions found in ${filePath}. Skipping code generation.`
       );
       return;
     }
@@ -163,7 +182,11 @@ async function processFile(filePath: string) {
 
 async function runGenerate() {
   console.log("Generating options...");
-  config = await loadConfig();
+  const loadedConfig = await loadConfigOrExit();
+  if (!loadedConfig) {
+    return;
+  }
+  config = loadedConfig;
 
   const sourcePath = join(process.cwd(), config.sourceDir);
   const outputRootPath = join(process.cwd(), config.outputDir);
@@ -198,7 +221,11 @@ async function runGenerate() {
 
 async function runWatch() {
   console.log("Watching for file changes...");
-  config = await loadConfig();
+  const loadedConfig = await loadConfigOrExit();
+  if (!loadedConfig) {
+    return;
+  }
+  config = loadedConfig;
 
   const sourcePath = join(process.cwd(), config.sourceDir);
   const outputRootPath = join(process.cwd(), config.outputDir);

@@ -25,6 +25,8 @@
 
 > React Query Helper는 TypeScript API 함수로부터 React Query 훅과 옵션 객체를 자동 생성해 주는 CLI 도구입니다. 설정만 해두면 반복적인 훅 작성 시간을 절약하고 프로젝트 전체에 걸쳐 일관된 데이터 패칭 규칙을 유지할 수 있습니다.
 
+기본적으로 각 파일의 `export`된 함수만 생성 대상으로 분석합니다.
+
 ---
 
 ## 목차
@@ -51,6 +53,7 @@
 - **일관된 옵션 관리**: `queryOption`, `mutationOption`, `infiniteOption` 유틸리티로 전역 캐싱 전략과 에러 핸들링을 통일할 수 있습니다.
 - **Prettier 통합**: 생성된 파일은 자동으로 포맷팅되어 코드 리뷰 시 불필요한 변경을 줄입니다.
 - **헬퍼 import 경로 커스터마이징**: `templateDir`로 생성 코드가 참조할 헬퍼 모듈 경로를 바꿀 수 있습니다.
+- **보수적인 infinite 기본값**: `infiniteOption`은 안전한 기본 옵션만 제공하고, 실제 `pageParam` 처리 규칙은 호출부에서 override 하도록 설계되어 있습니다.
 
 ## 빠른 시작
 
@@ -125,6 +128,32 @@ bun run generate   # 전체 파일 일괄 생성
 | `outputDir` | ✅ | 생성된 훅과 옵션 파일이 저장될 디렉토리 |
 | `ignoredFiles` | ❌ | 코드 생성에서 제외할 파일 이름 배열 |
 | `templateDir` | ❌ | 생성된 코드에서 `queryOption` 계열을 import 할 모듈 경로 또는 상대 디렉토리 |
+
+## Infinite Query 기본값
+
+`infiniteOption`은 API마다 페이지네이션 규칙이 다르기 때문에, 기본 구현에서는 `pageParam`을 자동 병합하지 않습니다.
+
+필요한 경우 생성된 옵션을 펼친 뒤 `queryFn`, `getNextPageParam`, `initialPageParam`을 직접 override 해서 사용하세요.
+
+```ts
+const usersInfinite = {
+  ...getUsersInfiniteQueryOption({ page: 1 }),
+  initialPageParam: 1,
+  queryFn: ({ pageParam }) => getUsers({ page: pageParam }),
+  getNextPageParam: (lastPage) => lastPage.nextPage,
+};
+```
+
+## 배포 방식
+
+GitHub Actions의 npm 배포는 이제 `main` 푸시가 아니라 `v*` 태그 푸시 또는 수동 실행에서만 동작합니다.
+
+예시:
+
+```bash
+git tag v1.0.3
+git push origin v1.0.3
+```
 
 ## 생성 결과 예시
 

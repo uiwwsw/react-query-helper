@@ -25,6 +25,8 @@
 
 > React Query Helper automates the creation of React Query hooks and option objects from your TypeScript API functions. Configure it once and keep your data-fetching layer consistent across your entire project.
 
+By default, only exported functions in each file are analyzed for generation.
+
 ---
 
 ## Table of Contents
@@ -51,6 +53,7 @@
 - **Consistent query options** – Centralize caching, retry, and error handling via `queryOption`, `mutationOption`, and `infiniteOption` utilities.
 - **Prettier integration** – All emitted files are formatted automatically to minimize noisy diffs.
 - **Custom helper imports** – Use `templateDir` to change where generated files import `queryOption`, `mutationOption`, and `infiniteOption` from.
+- **Conservative infinite defaults** – `infiniteOption` ships with a safe baseline and expects callers to override pagination-specific `pageParam` behavior.
 
 ## Quick Start
 
@@ -127,6 +130,32 @@ bun run generate   # batch generation for every API file
 | `outputDir` | ✅ | Destination directory for generated hooks and option objects. |
 | `ignoredFiles` | ❌ | Array of filenames to exclude from generation. |
 | `templateDir` | ❌ | Module path or relative directory used for importing `queryOption`, `mutationOption`, and `infiniteOption`. |
+
+## Infinite Query Defaults
+
+Because pagination rules vary by API, `infiniteOption` does not merge `pageParam` into your request automatically.
+
+Override `queryFn`, `getNextPageParam`, and `initialPageParam` in the consuming code when you need custom infinite-query behavior.
+
+```ts
+const usersInfinite = {
+  ...getUsersInfiniteQueryOption({ page: 1 }),
+  initialPageParam: 1,
+  queryFn: ({ pageParam }) => getUsers({ page: pageParam }),
+  getNextPageParam: (lastPage) => lastPage.nextPage,
+};
+```
+
+## Release Flow
+
+GitHub Actions now publishes to npm only on `v*` tag pushes or manual workflow runs instead of every push to `main`.
+
+Example:
+
+```bash
+git tag v1.0.3
+git push origin v1.0.3
+```
 
 ## Sample Output
 
