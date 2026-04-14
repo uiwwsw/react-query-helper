@@ -48,6 +48,45 @@ function shouldIncludeFunction(
   return true;
 }
 
+function unwrapFunctionLike(
+  node: ts.Expression | undefined
+): ts.ArrowFunction | ts.FunctionExpression | undefined {
+  if (!node) {
+    return undefined;
+  }
+
+  if (ts.isArrowFunction(node) || ts.isFunctionExpression(node)) {
+    return node;
+  }
+
+  if (
+    ts.isParenthesizedExpression(node) ||
+    ts.isAsExpression(node) ||
+    ts.isTypeAssertionExpression(node) ||
+    ts.isSatisfiesExpression(node) ||
+    ts.isNonNullExpression(node)
+  ) {
+    return unwrapFunctionLike(node.expression);
+  }
+
+  return undefined;
+}
+
+function getFunctionInfo(
+  name: string,
+  parameters: readonly ts.ParameterDeclaration[],
+  isAsync: boolean,
+  isExported: boolean,
+  sourceFile: ts.SourceFile
+): FunctionInfo {
+  return {
+    name,
+    parameters: parameters.map((param) => param.name.getText(sourceFile)),
+    isAsync,
+    isExported,
+  };
+}
+
 export function analyzeFile(
   filePath: string,
   config: AnalyzerConfig = {}
@@ -76,33 +115,34 @@ export function analyzeFile(
       const isExported = hasExportModifier(node);
       node.declarationList.declarations.forEach((declaration) => {
         if (ts.isVariableDeclaration(declaration) && ts.isIdentifier(declaration.name)) {
-          const initializer = declaration.initializer;
-          if (initializer && (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer))) {
-            const name = declaration.name.text;
-            const parameters = initializer.parameters.map((param) =>
-              param.name.getText(sourceFile)
+          const initializer = unwrapFunctionLike(declaration.initializer);
+          if (initializer) {
+            functionInfos.push(
+              getFunctionInfo(
+                declaration.name.text,
+                initializer.parameters,
+                !!initializer.modifiers?.some(
+                  (modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword
+                ),
+                isExported,
+                sourceFile
+              )
             );
-            const isAsync =
-              initializer.modifiers?.some(
-                (modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword
-              ) || false;
-            functionInfos.push({ name, parameters, isAsync, isExported });
           }
         }
       });
-    } else if (ts.isFunctionDeclaration(node)) {
-      if (node.name) {
-        const name = node.name.text;
-        const parameters = node.parameters.map((param) =>
-          param.name.getText(sourceFile)
-        );
-        const isAsync =
-          node.modifiers?.some(
+    } else if (ts.isFunctionDeclaration(node) && node.name) {
+      functionInfos.push(
+        getFunctionInfo(
+          node.name.text,
+          node.parameters,
+          !!node.modifiers?.some(
             (modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword
-          ) || false;
-        const isExported = hasExportModifier(node);
-        functionInfos.push({ name, parameters, isAsync, isExported });
-      }
+          ),
+          hasExportModifier(node),
+          sourceFile
+        )
+      );
     }
   });
 
