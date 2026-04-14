@@ -1,6 +1,6 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
