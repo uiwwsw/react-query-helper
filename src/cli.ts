@@ -19,7 +19,7 @@ import {
   type CustomAnalyzerModule,
   type CustomTemplateModule,
   type ResolvedAutoQueryConfig,
-} from "./config";
+} from "./config-loader";
 import prettier from "prettier";
 
 let config: ResolvedAutoQueryConfig;

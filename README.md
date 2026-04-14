@@ -49,6 +49,7 @@
 
 - **설정 기반 자동화**: `rqh.config.ts`만 구성하면 API 디렉토리 감지부터 출력 디렉토리 지정까지 모두 자동화됩니다.
 - **초기화 지원**: `react-query-helper --init`으로 기본 설정 파일을 바로 생성할 수 있습니다.
+- **런타임/개발 분리**: generate/watch/config 로딩은 개발 시점 전용이고, 생성된 결과가 참조하는 런타임 helper 엔트리에는 `fs` 같은 Node 전용 코드가 포함되지 않도록 분리되어 있습니다.
 - **Watch & Generate 모드**: 개발 중 실시간 감시(`--watch`), 초기 세팅이나 재생성 시 일괄 생성(`--generate`)을 모두 지원합니다.
 - **일관된 옵션 관리**: `queryOption`, `mutationOption`, `infiniteOption` 유틸리티로 전역 캐싱 전략과 에러 핸들링을 통일할 수 있습니다.
 - **Prettier 통합**: 생성된 파일은 자동으로 포맷팅되어 코드 리뷰 시 불필요한 변경을 줄입니다.
