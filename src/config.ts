@@ -23,6 +23,7 @@ export interface AutoQueryConfig {
   sourceDir: string; // API 함수가 있는 폴더 (예: './libs')
   outputDir: string; // 생성된 옵션 파일이 저장될 폴더 (예: './src/options')
   templateDir?: string;
+  sourceImportAlias?: string;
   ignoredFiles?: string[]; // 무시할 파일 목록 (예: ['domain.ts', 'adaptor.ts'])
   analyzer?: AnalyzerConfig;
   template?: TemplateConfig;

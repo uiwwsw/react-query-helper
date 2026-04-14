@@ -96,6 +96,7 @@ const config: AutoQueryConfig = {
   outputDir: "./src/options", // Where generated hooks are stored
   ignoredFiles: ["domain.ts", "adaptor.ts"],
   templateDir: "@uiwwsw/react-query-helper",
+  sourceImportAlias: "@/libs",
   analyzer: {
     exportFilter: "exported-only",
     functionMatchMode: "all",
@@ -150,6 +151,7 @@ npm exec react-query-helper -- --generate
 | `outputDir` | ✅ | Destination directory for generated hooks and option objects. |
 | `ignoredFiles` | ❌ | Array of file/path patterns to exclude from generation (`domain.ts`, `**/*.spec.ts`, `admin/internal/**`). |
 | `templateDir` | ❌ | Module path or relative directory used for importing `queryOption`, `mutationOption`, and `infiniteOption`. |
+| `sourceImportAlias` | ❌ | Prefix used to generate API imports via a path alias instead of relative paths, for example `@/apis`. |
 | `analyzer` | ❌ | Filters which functions are analyzed (`exported-only`, `async-only`, include/exclude lists, etc.). |
 | `template` | ❌ | Controls which artifacts are generated and how they are named. |
 
