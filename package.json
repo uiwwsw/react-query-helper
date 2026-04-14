@@ -1,6 +1,6 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
@@ -44,7 +44,7 @@
   },
   "scripts": {
     "start": "bun run src/index.ts",
-    "build": "tsc && bun build src/cli.ts --outdir dist --target node --external typescript --external prettier && bun build src/index.ts --outdir dist --target node --external typescript --external prettier && node scripts/prepend-shebang.cjs dist/cli.js",
+    "build": "./node_modules/.bin/tsc && bun build src/cli.ts --outdir dist --target node --external typescript --external prettier && bun build src/index.ts --outdir dist --target node --external typescript --external prettier && node scripts/prepend-shebang.cjs dist/cli.js",
     "dev": "bun run src/cli.ts --watch",
     "generate": "bun run src/cli.ts --generate"
   },
