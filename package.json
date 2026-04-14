@@ -1,6 +1,6 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
     "dist"
   ],
   "bin": {
-    "rqh": "dist/cli.js"
+    "react-query-helper": "dist/cli.js"
   },
   "publishConfig": {
     "access": "public"
