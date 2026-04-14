@@ -251,6 +251,41 @@ const config: AutoQueryConfig = {
 - `customAnalyzerPath`: 파일을 읽고 원하는 함수 메타 목록을 직접 반환
 - `customTemplatePath`: 최종 생성 코드 문자열을 직접 반환
 
+예시 `rqh.analyzer.mjs`:
+
+```js
+export function analyzeFile(filePath, config) {
+  // 여기서 AST를 직접 파싱하거나,
+  // 파일명 규칙 / 함수명 규칙을 자유롭게 적용할 수 있습니다.
+  return [
+    {
+      name: "getUser",
+      parameters: ["params"],
+      isAsync: true,
+      isExported: true,
+    },
+  ];
+}
+```
+
+예시 `rqh.template.mjs`:
+
+```js
+export function generateOptionsCode({ functionInfos, importPath }) {
+  const names = functionInfos.map((info) => info.name).join(", ");
+  return `import { ${names} } from "${importPath}";\nexport const customGenerated = true;\n`;
+}
+```
+
+언제 custom analyzer를 쓰면 되냐면:
+- built-in analyzer 설정만으로 충분한 경우
+  - `exported-only`, `async-only`, 이름 include/exclude, 아티팩트 on/off 정도
+- custom analyzer가 필요한 경우
+  - 함수 선언이 래핑되어 있거나
+  - factory/higher-order 구조를 쓰거나
+  - 팀 전용 규칙으로 함수 후보를 뽑아야 하거나
+  - 기본 AST 규칙보다 더 복잡한 generic 패턴을 강제하고 싶을 때
+
 즉 이제는 기본 규칙을 조금 바꾸는 수준이 아니라, 팀 전용 생성기처럼 확장할 수 있습니다.
 
 ```ts

@@ -253,6 +253,33 @@ const config: AutoQueryConfig = {
 - `customAnalyzerPath`: returns your own function metadata list
 - `customTemplatePath`: returns the final generated code string
 
+Example `rqh.analyzer.mjs`:
+
+```js
+export function analyzeFile(filePath, config) {
+  return [
+    {
+      name: "getUser",
+      parameters: ["params"],
+      isAsync: true,
+      isExported: true,
+    },
+  ];
+}
+```
+
+Example `rqh.template.mjs`:
+
+```js
+export function generateOptionsCode({ functionInfos, importPath }) {
+  const names = functionInfos.map((info) => info.name).join(", ");
+  return `import { ${names} } from "${importPath}";\nexport const customGenerated = true;\n`;
+}
+```
+
+Use the built-in analyzer when you only need filtering and naming tweaks.
+Use `customAnalyzerPath` when your project uses wrapped functions, factories, higher-order patterns, or team-specific generic conventions that do not map cleanly to the built-in AST rules.
+
 That means you can now treat the package as a base engine and layer your own team-specific generator behavior on top.
 
 ```ts
