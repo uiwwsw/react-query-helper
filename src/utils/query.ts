@@ -27,7 +27,7 @@ type MutationOptionType = <TArgs extends unknown[], TResult>(
 type InfiniteOptionType = <T extends unknown[], K>(
   key: readonly unknown[],
   fn: AnyFn<T, K>
-) => (...payload: T) => UseInfiniteQueryOptions<K, unknown, K>;
+) => (...payload: T) => UseInfiniteQueryOptions<K>;
 
 export const queryOption: QueryOptionType = <T extends unknown[], J>(
   key: readonly unknown[],
@@ -58,7 +58,7 @@ export const mutationOption: MutationOptionType = <TArgs extends unknown[], TRes
         return Promise.resolve(fn(...([] as unknown as TArgs)));
       }
 
-      return Promise.resolve(fn(variables as TArgs[0]));
+      return Promise.resolve(fn(...([variables] as unknown as TArgs)));
     },
     // retry: 3, // 실패 시 재시도 횟수 설정
   });
@@ -67,7 +67,7 @@ export const infiniteOption: InfiniteOptionType = <T extends unknown[], K>(
   key: readonly unknown[],
   fn: AnyFn<T, K>
 ) => {
-  return (...payload: T): UseInfiniteQueryOptions<K, unknown, K> => ({
+  return (...payload: T): UseInfiniteQueryOptions<K> => ({
     queryKey: [...key, ...payload],
     // Infinite queries usually need API-specific pagination rules.
     // The default keeps the function side-effect free and lets callers override
