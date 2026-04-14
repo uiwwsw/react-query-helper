@@ -146,7 +146,7 @@ npm exec react-query-helper -- --generate
 | --- | --- | --- |
 | `sourceDir` | ✅ | API 함수가 포함된 TypeScript 디렉토리 (루트 기준 경로) |
 | `outputDir` | ✅ | 생성된 훅과 옵션 파일이 저장될 디렉토리 |
-| `ignoredFiles` | ❌ | 코드 생성에서 제외할 파일 이름 배열 |
+| `ignoredFiles` | ❌ | 코드 생성에서 제외할 파일/경로 패턴 배열 (`domain.ts`, `**/*.spec.ts`, `admin/internal/**`) |
 | `templateDir` | ❌ | 생성된 코드에서 `queryOption` 계열을 import 할 모듈 경로 또는 상대 디렉토리 |
 | `analyzer` | ❌ | 어떤 함수를 읽을지 필터링하는 설정 (`exported-only`, `async-only`, include/exclude 등) |
 | `template` | ❌ | 어떤 아티팩트를 생성할지와 이름 규칙을 제어하는 설정 |

@@ -86,6 +86,36 @@ function shouldProcess(filePath: string) {
   return extension === ".ts" || extension === ".tsx";
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[|\\{}()[\]^$+?.]/g, "\\$&");
+}
+
+function globToRegExp(pattern: string) {
+  const normalized = normalizeModulePath(pattern);
+  const placeholder = "__DOUBLE_STAR__";
+  const escaped = escapeRegExp(normalized)
+    .replace(/\*\*/g, placeholder)
+    .replace(/\*/g, "[^/]*")
+    .replace(new RegExp(placeholder, "g"), ".*");
+
+  return new RegExp(`^${escaped}$`);
+}
+
+function isIgnoredFile(filePath: string) {
+  const relativePath = normalizeModulePath(relative(config.resolvedSourceDir, filePath));
+  const fileName = basename(filePath);
+
+  return (
+    config.ignoredFiles?.some((pattern) => {
+      const normalizedPattern = normalizeModulePath(pattern);
+      if (!normalizedPattern.includes("/") && !normalizedPattern.includes("*")) {
+        return fileName === normalizedPattern;
+      }
+      return globToRegExp(normalizedPattern).test(relativePath);
+    }) ?? false
+  );
+}
+
 function printUsage() {
   console.log("Usage: react-query-helper [init | generate | watch | help]");
   console.log("       react-query-helper [--init | --generate | --watch | --help]");
@@ -189,7 +219,7 @@ async function processFile(filePath: string) {
   const relativeDir = dirname(relativePath);
   const fileName = basename(filePath, extname(filePath));
 
-  if (config.ignoredFiles?.includes(basename(filePath))) {
+  if (isIgnoredFile(filePath)) {
     console.log(`Skipping ignored file: ${filePath}`);
     return;
   }
@@ -260,8 +290,7 @@ async function runGenerate() {
   const files = await new Promise<string[]>((resolve, reject) => {
     const results: string[] = [];
     const watcher = watch(sourcePath, {
-      ignored:
-        config.ignoredFiles?.map((file) => join(sourcePath, "**", file)) || [],
+      ignored: (watchedPath) => isIgnoredFile(String(watchedPath)),
       ignoreInitial: false,
       depth: 99,
     })
@@ -298,27 +327,26 @@ async function runWatch() {
   console.log(`📁 Ensured output directory exists at ${outputRootPath}`);
 
   watch(sourcePath, {
-    ignored:
-      config.ignoredFiles?.map((file) => join(sourcePath, "**", file)) || [],
+    ignored: (watchedPath) => isIgnoredFile(String(watchedPath)),
     ignoreInitial: false,
     depth: 99,
   })
     .on("add", async (filePath) => {
-      if (!shouldProcess(filePath)) {
+      if (!shouldProcess(filePath) || isIgnoredFile(filePath)) {
         return;
       }
       console.log(`📄 File added: ${filePath}`);
       await processFile(filePath);
     })
     .on("change", async (filePath) => {
-      if (!shouldProcess(filePath)) {
+      if (!shouldProcess(filePath) || isIgnoredFile(filePath)) {
         return;
       }
       console.log(`🔄 File changed: ${filePath}`);
       await processFile(filePath);
     })
     .on("unlink", async (filePath) => {
-      if (!shouldProcess(filePath)) {
+      if (!shouldProcess(filePath) || isIgnoredFile(filePath)) {
         return;
       }
       console.log(`🗑️ File unlinked: ${filePath}`);
