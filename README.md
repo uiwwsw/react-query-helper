@@ -237,6 +237,22 @@ const config: AutoQueryConfig = {
 };
 ```
 
+더 강하게 커스터마이징하려면 외부 모듈도 연결할 수 있습니다.
+
+```ts
+const config: AutoQueryConfig = {
+  sourceDir: "./libs",
+  outputDir: "./src/options",
+  customAnalyzerPath: "./rqh.analyzer.mjs",
+  customTemplatePath: "./rqh.template.mjs",
+};
+```
+
+- `customAnalyzerPath`: 파일을 읽고 원하는 함수 메타 목록을 직접 반환
+- `customTemplatePath`: 최종 생성 코드 문자열을 직접 반환
+
+즉 이제는 기본 규칙을 조금 바꾸는 수준이 아니라, 팀 전용 생성기처럼 확장할 수 있습니다.
+
 ```ts
 const config: AutoQueryConfig = {
   sourceDir: "./libs",

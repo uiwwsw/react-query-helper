@@ -9,17 +9,22 @@ import {
   sep,
 } from "path";
 import { writeFileSync, existsSync, mkdirSync, unlinkSync } from "fs";
-import { analyzeFile } from "./core/analyzer";
+import { pathToFileURL } from "url";
+import { analyzeFile, type FunctionInfo } from "./core/analyzer";
 import { generateOptionsCode } from "./core/generator";
 import {
   ConfigLoadError,
   loadConfig,
   resolveConfigPath,
+  type CustomAnalyzerModule,
+  type CustomTemplateModule,
   type ResolvedAutoQueryConfig,
 } from "./config";
 import prettier from "prettier";
 
 let config: ResolvedAutoQueryConfig;
+let customAnalyzerModule: CustomAnalyzerModule | null = null;
+let customTemplateModule: CustomTemplateModule | null = null;
 
 const DEFAULT_CONFIG_FILE_NAME = "rqh.config.ts";
 const DEFAULT_CONFIG_TEMPLATE = `import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
@@ -49,6 +54,8 @@ const config: AutoQueryConfig = {
       infinite: "InfiniteQueryOption",
     },
   },
+  customAnalyzerPath: "./rqh.analyzer.ts",
+  customTemplatePath: "./rqh.template.ts",
 };
 
 export default config;
@@ -97,7 +104,8 @@ function runInit() {
   console.log(`✅ Created ${configPath}`);
   console.log("Next steps:");
   console.log("1. Update sourceDir/outputDir if needed.");
-  console.log("2. Run `react-query-helper --generate`.");
+  console.log("2. Remove customAnalyzerPath/customTemplatePath if you don't need plugin hooks.");
+  console.log("3. Run `react-query-helper --generate`.");
 }
 
 async function loadConfigOrExit() {
@@ -116,6 +124,52 @@ async function loadConfigOrExit() {
     process.exitCode = 1;
     return null;
   }
+}
+
+async function loadPluginModules() {
+  customAnalyzerModule = null;
+  customTemplateModule = null;
+
+  if (config.resolvedCustomAnalyzerPath) {
+    const imported = await import(pathToFileURL(config.resolvedCustomAnalyzerPath).href);
+    customAnalyzerModule = (imported.default ?? imported) as CustomAnalyzerModule;
+  }
+
+  if (config.resolvedCustomTemplatePath) {
+    const imported = await import(pathToFileURL(config.resolvedCustomTemplatePath).href);
+    customTemplateModule = (imported.default ?? imported) as CustomTemplateModule;
+  }
+}
+
+async function collectFunctionInfos(filePath: string): Promise<FunctionInfo[]> {
+  if (customAnalyzerModule?.analyzeFile) {
+    const result = await customAnalyzerModule.analyzeFile(filePath, config);
+    return Array.isArray(result) ? (result as FunctionInfo[]) : [];
+  }
+
+  return analyzeFile(filePath, config.analyzer);
+}
+
+async function renderOptionsCode(params: {
+  functionInfos: FunctionInfo[];
+  importPath: string;
+  keySegments: string[];
+  fileName: string;
+  templateImportPath: string;
+}) {
+  if (customTemplateModule?.generateOptionsCode) {
+    return await customTemplateModule.generateOptionsCode({
+      ...params,
+      config,
+    });
+  }
+
+  return generateOptionsCode(params.functionInfos, params.importPath, {
+    keySegments: params.keySegments,
+    fileName: params.fileName,
+    templateImportPath: params.templateImportPath,
+    template: config.template,
+  });
 }
 
 async function processFile(filePath: string) {
@@ -141,7 +195,7 @@ async function processFile(filePath: string) {
   }
 
   try {
-    const functionInfos = analyzeFile(filePath, config.analyzer);
+    const functionInfos = await collectFunctionInfos(filePath);
     if (functionInfos.length === 0) {
       console.log(
         `No exported functions found in ${filePath}. Skipping code generation.`
@@ -153,31 +207,26 @@ async function processFile(filePath: string) {
       relativeDir === "." ? outputRoot : join(outputRoot, relativeDir);
     const outputFile = join(outputFolder, `${fileName}Options.ts`);
 
-    const generatedCode = generateOptionsCode(
+    const generatedCode = await renderOptionsCode({
       functionInfos,
-      normalizeModulePath(
+      importPath: normalizeModulePath(
         relative(
           dirname(outputFile),
           filePath.replace(new RegExp(`${extname(filePath)}$`), "")
         ) || ".",
         true
       ),
-      {
-        keySegments:
-          relativeDir === "."
-            ? [fileName]
-            : relativeDir.split(sep).filter(Boolean),
-        fileName,
-        templateImportPath:
-          config.resolvedTemplateDir && config.templateDir?.startsWith(".")
-            ? normalizeModulePath(
-                relative(dirname(outputFile), config.resolvedTemplateDir) || ".",
-                true
-              )
-            : config.resolvedTemplateDir ?? "@uiwwsw/react-query-helper",
-        template: config.template,
-      }
-    );
+      keySegments:
+        relativeDir === "." ? [fileName] : relativeDir.split(sep).filter(Boolean),
+      fileName,
+      templateImportPath:
+        config.resolvedTemplateDir && config.templateDir?.startsWith(".")
+          ? normalizeModulePath(
+              relative(dirname(outputFile), config.resolvedTemplateDir) || ".",
+              true
+            )
+          : config.resolvedTemplateDir ?? "@uiwwsw/react-query-helper",
+    });
 
     if (!existsSync(outputFolder)) {
       mkdirSync(outputFolder, { recursive: true });
@@ -200,6 +249,7 @@ async function runGenerate() {
     return;
   }
   config = loadedConfig;
+  await loadPluginModules();
 
   const sourcePath = config.resolvedSourceDir;
   const outputRootPath = config.resolvedOutputDir;
@@ -239,6 +289,7 @@ async function runWatch() {
     return;
   }
   config = loadedConfig;
+  await loadPluginModules();
 
   const sourcePath = config.resolvedSourceDir;
   const outputRootPath = config.resolvedOutputDir;
