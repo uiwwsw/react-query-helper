@@ -96,6 +96,16 @@ const config: AutoQueryConfig = {
   outputDir: "./src/options", // Where generated hooks are stored
   ignoredFiles: ["domain.ts", "adaptor.ts"],
   templateDir: "@uiwwsw/react-query-helper",
+  analyzer: {
+    exportFilter: "exported-only",
+    functionMatchMode: "all",
+    includeNames: [],
+    excludeNames: [],
+  },
+  template: {
+    enabledArtifacts: ["query", "mutation", "infinite"],
+    keyStyle: "path",
+  },
 };
 
 export default config;
@@ -140,6 +150,8 @@ npm exec react-query-helper -- --generate
 | `outputDir` | ✅ | Destination directory for generated hooks and option objects. |
 | `ignoredFiles` | ❌ | Array of filenames to exclude from generation. |
 | `templateDir` | ❌ | Module path or relative directory used for importing `queryOption`, `mutationOption`, and `infiniteOption`. |
+| `analyzer` | ❌ | Filters which functions are analyzed (`exported-only`, `async-only`, include/exclude lists, etc.). |
+| `template` | ❌ | Controls which artifacts are generated and how they are named. |
 
 ## Infinite Query Defaults
 
@@ -206,6 +218,26 @@ export const createUserInfiniteQueryOption = infiniteOption(
 ## Custom Helper Imports
 
 Point `templateDir` to your shared helper module if you want generated files to import from somewhere other than the package default.
+
+You can also shape generation around your team's conventions with `template` and `analyzer`.
+
+```ts
+const config: AutoQueryConfig = {
+  sourceDir: "./libs",
+  outputDir: "./src/options",
+  analyzer: {
+    functionMatchMode: "async-only",
+    excludeNames: ["debugHelper"],
+  },
+  template: {
+    enabledArtifacts: ["query"],
+    keyStyle: "function-only",
+    outputNames: {
+      query: "CustomQueryOption",
+    },
+  },
+};
+```
 
 ```ts
 const config: AutoQueryConfig = {

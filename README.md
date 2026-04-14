@@ -94,6 +94,16 @@ const config: AutoQueryConfig = {
   outputDir: "./src/options", // 생성된 코드가 저장될 경로
   ignoredFiles: ["domain.ts", "adaptor.ts"],
   templateDir: "@uiwwsw/react-query-helper",
+  analyzer: {
+    exportFilter: "exported-only",
+    functionMatchMode: "all",
+    includeNames: [],
+    excludeNames: [],
+  },
+  template: {
+    enabledArtifacts: ["query", "mutation", "infinite"],
+    keyStyle: "path",
+  },
 };
 
 export default config;
@@ -138,6 +148,8 @@ npm exec react-query-helper -- --generate
 | `outputDir` | ✅ | 생성된 훅과 옵션 파일이 저장될 디렉토리 |
 | `ignoredFiles` | ❌ | 코드 생성에서 제외할 파일 이름 배열 |
 | `templateDir` | ❌ | 생성된 코드에서 `queryOption` 계열을 import 할 모듈 경로 또는 상대 디렉토리 |
+| `analyzer` | ❌ | 어떤 함수를 읽을지 필터링하는 설정 (`exported-only`, `async-only`, include/exclude 등) |
+| `template` | ❌ | 어떤 아티팩트를 생성할지와 이름 규칙을 제어하는 설정 |
 
 ## Infinite Query 기본값
 
@@ -204,6 +216,26 @@ export const createUserInfiniteQueryOption = infiniteOption(
 ## 헬퍼 경로 커스터마이징
 
 조직 공용 헬퍼를 따로 두고 있다면 `templateDir`로 생성 코드의 import 경로를 바꿀 수 있습니다.
+
+또한 `template` / `analyzer` 설정으로 현재 팀 구조에 맞게 생성 규칙을 바꿀 수 있습니다.
+
+```ts
+const config: AutoQueryConfig = {
+  sourceDir: "./libs",
+  outputDir: "./src/options",
+  analyzer: {
+    functionMatchMode: "async-only",
+    excludeNames: ["debugHelper"],
+  },
+  template: {
+    enabledArtifacts: ["query"],
+    keyStyle: "function-only",
+    outputNames: {
+      query: "CustomQueryOption",
+    },
+  },
+};
+```
 
 ```ts
 const config: AutoQueryConfig = {
