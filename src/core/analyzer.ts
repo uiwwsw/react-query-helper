@@ -1,5 +1,15 @@
-import ts from 'typescript';
-import { readFileSync } from 'fs';
+import ts from "typescript";
+import { readFileSync } from "fs";
+
+export type ExportFilter = "exported-only" | "all";
+export type FunctionMatchMode = "all" | "async-only" | "sync-only";
+
+export interface AnalyzerConfig {
+  exportFilter?: ExportFilter;
+  functionMatchMode?: FunctionMatchMode;
+  includeNames?: string[];
+  excludeNames?: string[];
+}
 
 export interface FunctionInfo {
   name: string;
@@ -8,9 +18,44 @@ export interface FunctionInfo {
   isExported: boolean;
 }
 
-export function analyzeFile(filePath: string): FunctionInfo[] {
-  const sourceCode = readFileSync(filePath, 'utf8');
-  const scriptKind = filePath.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+function shouldIncludeFunction(
+  info: FunctionInfo,
+  config: AnalyzerConfig = {}
+): boolean {
+  const exportFilter = config.exportFilter ?? "exported-only";
+  const functionMatchMode = config.functionMatchMode ?? "all";
+
+  if (exportFilter === "exported-only" && !info.isExported) {
+    return false;
+  }
+
+  if (functionMatchMode === "async-only" && !info.isAsync) {
+    return false;
+  }
+
+  if (functionMatchMode === "sync-only" && info.isAsync) {
+    return false;
+  }
+
+  if (config.includeNames?.length && !config.includeNames.includes(info.name)) {
+    return false;
+  }
+
+  if (config.excludeNames?.includes(info.name)) {
+    return false;
+  }
+
+  return true;
+}
+
+export function analyzeFile(
+  filePath: string,
+  config: AnalyzerConfig = {}
+): FunctionInfo[] {
+  const sourceCode = readFileSync(filePath, "utf8");
+  const scriptKind = filePath.endsWith(".tsx")
+    ? ts.ScriptKind.TSX
+    : ts.ScriptKind.TS;
   const sourceFile = ts.createSourceFile(
     filePath,
     sourceCode,
@@ -34,8 +79,13 @@ export function analyzeFile(filePath: string): FunctionInfo[] {
           const initializer = declaration.initializer;
           if (initializer && (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer))) {
             const name = declaration.name.text;
-            const parameters = initializer.parameters.map(param => param.name.getText(sourceFile));
-            const isAsync = initializer.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) || false;
+            const parameters = initializer.parameters.map((param) =>
+              param.name.getText(sourceFile)
+            );
+            const isAsync =
+              initializer.modifiers?.some(
+                (modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword
+              ) || false;
             functionInfos.push({ name, parameters, isAsync, isExported });
           }
         }
@@ -43,13 +93,18 @@ export function analyzeFile(filePath: string): FunctionInfo[] {
     } else if (ts.isFunctionDeclaration(node)) {
       if (node.name) {
         const name = node.name.text;
-        const parameters = node.parameters.map(param => param.name.getText(sourceFile));
-        const isAsync = node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) || false;
+        const parameters = node.parameters.map((param) =>
+          param.name.getText(sourceFile)
+        );
+        const isAsync =
+          node.modifiers?.some(
+            (modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword
+          ) || false;
         const isExported = hasExportModifier(node);
         functionInfos.push({ name, parameters, isAsync, isExported });
       }
     }
   });
 
-  return functionInfos.filter((info) => info.isExported);
+  return functionInfos.filter((info) => shouldIncludeFunction(info, config));
 }

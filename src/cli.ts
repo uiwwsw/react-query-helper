@@ -29,6 +29,26 @@ const config: AutoQueryConfig = {
   outputDir: "./src/options",
   ignoredFiles: ["domain.ts", "adaptor.ts"],
   templateDir: "@uiwwsw/react-query-helper",
+  analyzer: {
+    exportFilter: "exported-only",
+    functionMatchMode: "all",
+    includeNames: [],
+    excludeNames: [],
+  },
+  template: {
+    enabledArtifacts: ["query", "mutation", "infinite"],
+    keyStyle: "path",
+    importNames: {
+      query: "queryOption",
+      mutation: "mutationOption",
+      infinite: "infiniteOption",
+    },
+    outputNames: {
+      query: "QueryOption",
+      mutation: "MutationOption",
+      infinite: "InfiniteQueryOption",
+    },
+  },
 };
 
 export default config;
@@ -121,7 +141,7 @@ async function processFile(filePath: string) {
   }
 
   try {
-    const functionInfos = analyzeFile(filePath);
+    const functionInfos = analyzeFile(filePath, config.analyzer);
     if (functionInfos.length === 0) {
       console.log(
         `No exported functions found in ${filePath}. Skipping code generation.`
@@ -147,6 +167,7 @@ async function processFile(filePath: string) {
           relativeDir === "."
             ? [fileName]
             : relativeDir.split(sep).filter(Boolean),
+        fileName,
         templateImportPath:
           config.resolvedTemplateDir && config.templateDir?.startsWith(".")
             ? normalizeModulePath(
@@ -154,6 +175,7 @@ async function processFile(filePath: string) {
                 true
               )
             : config.resolvedTemplateDir ?? "@uiwwsw/react-query-helper",
+        template: config.template,
       }
     );
 
