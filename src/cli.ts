@@ -34,6 +34,7 @@ const config: AutoQueryConfig = {
   outputDir: "./src/options",
   ignoredFiles: ["domain.ts", "adaptor.ts"],
   templateDir: "@uiwwsw/react-query-helper",
+  sourceImportAlias: "@/libs",
   analyzer: {
     exportFilter: "exported-only",
     functionMatchMode: "all",
@@ -202,6 +203,23 @@ async function renderOptionsCode(params: {
   });
 }
 
+function resolveSourceImportPath(filePath: string, outputFile: string) {
+  const sourceModulePath = filePath.replace(new RegExp(`${extname(filePath)}$`), "");
+  const relativeSourcePath = normalizeModulePath(
+    relative(config.resolvedSourceDir, sourceModulePath)
+  );
+
+  if (config.sourceImportAlias) {
+    const aliasBase = config.sourceImportAlias.replace(/\/$/, "");
+    return relativeSourcePath ? `${aliasBase}/${relativeSourcePath}` : aliasBase;
+  }
+
+  return normalizeModulePath(
+    relative(dirname(outputFile), sourceModulePath) || ".",
+    true
+  );
+}
+
 async function processFile(filePath: string) {
   if (!shouldProcess(filePath)) {
     return;
@@ -239,13 +257,7 @@ async function processFile(filePath: string) {
 
     const generatedCode = await renderOptionsCode({
       functionInfos,
-      importPath: normalizeModulePath(
-        relative(
-          dirname(outputFile),
-          filePath.replace(new RegExp(`${extname(filePath)}$`), "")
-        ) || ".",
-        true
-      ),
+      importPath: resolveSourceImportPath(filePath, outputFile),
       keySegments:
         relativeDir === "." ? [fileName] : relativeDir.split(sep).filter(Boolean),
       fileName,

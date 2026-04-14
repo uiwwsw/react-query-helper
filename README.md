@@ -94,6 +94,7 @@ const config: AutoQueryConfig = {
   outputDir: "./src/options", // 생성된 코드가 저장될 경로
   ignoredFiles: ["domain.ts", "adaptor.ts"],
   templateDir: "@uiwwsw/react-query-helper",
+  sourceImportAlias: "@/libs",
   analyzer: {
     exportFilter: "exported-only",
     functionMatchMode: "all",
@@ -148,6 +149,7 @@ npm exec react-query-helper -- --generate
 | `outputDir` | ✅ | 생성된 훅과 옵션 파일이 저장될 디렉토리 |
 | `ignoredFiles` | ❌ | 코드 생성에서 제외할 파일/경로 패턴 배열 (`domain.ts`, `**/*.spec.ts`, `admin/internal/**`) |
 | `templateDir` | ❌ | 생성된 코드에서 `queryOption` 계열을 import 할 모듈 경로 또는 상대 디렉토리 |
+| `sourceImportAlias` | ❌ | API 함수 import를 상대경로 대신 alias로 생성할 때 사용할 prefix (`@/apis` 등) |
 | `analyzer` | ❌ | 어떤 함수를 읽을지 필터링하는 설정 (`exported-only`, `async-only`, include/exclude 등) |
 | `template` | ❌ | 어떤 아티팩트를 생성할지와 이름 규칙을 제어하는 설정 |
 
