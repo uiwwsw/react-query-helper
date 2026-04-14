@@ -87,7 +87,7 @@ npm exec react-query-helper -- --init
 
 ```ts
 // rqh.config.ts
-import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
+import type { AutoQueryConfig } from "@uiwwsw/react-query-helper/config";
 
 const config: AutoQueryConfig = {
   sourceDir: "./libs",        // API 함수들이 위치한 경로

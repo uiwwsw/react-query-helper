@@ -1,6 +1,6 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
@@ -40,6 +40,18 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./config": {
+      "import": "./dist/config.js",
+      "types": "./dist/config.d.ts"
+    },
+    "./core/analyzer": {
+      "import": "./dist/core/analyzer.js",
+      "types": "./dist/core/analyzer.d.ts"
+    },
+    "./core/generator": {
+      "import": "./dist/core/generator.js",
+      "types": "./dist/core/generator.d.ts"
     }
   },
   "scripts": {

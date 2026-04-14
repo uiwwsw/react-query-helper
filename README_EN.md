@@ -89,7 +89,7 @@ The generated file looks like this:
 
 ```ts
 // rqh.config.ts
-import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
+import type { AutoQueryConfig } from "@uiwwsw/react-query-helper/config";
 
 const config: AutoQueryConfig = {
   sourceDir: "./libs",        // Where your API functions live
