@@ -49,6 +49,7 @@ By default, only exported functions in each file are analyzed for generation.
 
 - **Configuration-driven automation** – Define everything once in `rqh.config.ts` and let the CLI handle the rest.
 - **Built-in initialization** – Run `react-query-helper --init` to generate a starter config file instantly.
+- **Runtime/dev separation** – generate/watch/config loading stay dev-only, and the runtime helper entry used by generated files stays free of Node-only modules like `fs`.
 - **Watch & Generate modes** – Use `--watch` during development for live updates or `--generate` for bootstrapping and regeneration.
 - **Consistent query options** – Centralize caching, retry, and error handling via `queryOption`, `mutationOption`, and `infiniteOption` utilities.
 - **Prettier integration** – All emitted files are formatted automatically to minimize noisy diffs.
