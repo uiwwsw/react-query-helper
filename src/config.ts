@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { readFile, unlink, writeFile } from "fs/promises";
 import { randomUUID } from "crypto";
-import { dirname, extname, join } from "path";
+import { dirname, extname, join, resolve } from "path";
 import { pathToFileURL } from "url";
 import ts from "typescript";
 
@@ -18,9 +18,17 @@ export class ConfigLoadError extends Error {
 
 export interface AutoQueryConfig {
   sourceDir: string; // API 함수가 있는 폴더 (예: './libs')
-  outputDir: string; // 생성된 옵션 파일이 저장될 폴0더 (예: './src/options')
+  outputDir: string; // 생성된 옵션 파일이 저장될 폴더 (예: './src/options')
   templateDir?: string;
   ignoredFiles?: string[]; // 무시할 파일 목록 (예: ['domain.ts', 'adaptor.ts'])
+}
+
+export interface ResolvedAutoQueryConfig extends AutoQueryConfig {
+  configPath?: string;
+  configDir: string;
+  resolvedSourceDir: string;
+  resolvedOutputDir: string;
+  resolvedTemplateDir?: string;
 }
 
 const defaultConfig: AutoQueryConfig = {
@@ -81,7 +89,7 @@ export function resolveConfigPath(cwd = process.cwd()) {
   );
 }
 
-export async function loadConfig(): Promise<AutoQueryConfig> {
+export async function loadConfig(): Promise<ResolvedAutoQueryConfig> {
   const configPath = resolveConfigPath();
 
   if (configPath) {
@@ -101,12 +109,31 @@ export async function loadConfig(): Promise<AutoQueryConfig> {
       );
     }
 
-    const mergedConfig = {
+    const mergedConfig: AutoQueryConfig = {
       ...defaultConfig,
       ...userConfig,
     };
-    return mergedConfig;
+    const configDir = dirname(configPath);
+
+    return {
+      ...mergedConfig,
+      configPath,
+      configDir,
+      resolvedSourceDir: resolve(configDir, mergedConfig.sourceDir),
+      resolvedOutputDir: resolve(configDir, mergedConfig.outputDir),
+      resolvedTemplateDir:
+        mergedConfig.templateDir && mergedConfig.templateDir.startsWith(".")
+          ? resolve(configDir, mergedConfig.templateDir)
+          : mergedConfig.templateDir,
+    };
   }
 
-  return defaultConfig;
+  const configDir = process.cwd();
+  return {
+    ...defaultConfig,
+    configDir,
+    resolvedSourceDir: resolve(configDir, defaultConfig.sourceDir),
+    resolvedOutputDir: resolve(configDir, defaultConfig.outputDir),
+    resolvedTemplateDir: defaultConfig.templateDir,
+  };
 }

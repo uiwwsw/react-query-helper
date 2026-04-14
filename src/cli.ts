@@ -15,11 +15,11 @@ import {
   ConfigLoadError,
   loadConfig,
   resolveConfigPath,
-  type AutoQueryConfig,
+  type ResolvedAutoQueryConfig,
 } from "./config";
 import prettier from "prettier";
 
-let config: AutoQueryConfig;
+let config: ResolvedAutoQueryConfig;
 
 const DEFAULT_CONFIG_FILE_NAME = "rqh.config.ts";
 const DEFAULT_CONFIG_TEMPLATE = `import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
@@ -60,12 +60,8 @@ function shouldProcess(filePath: string) {
 }
 
 function printUsage() {
-  console.log(
-    "Usage: react-query-helper [init | generate | watch | help]"
-  );
-  console.log(
-    "       react-query-helper [--init | --generate | --watch | --help]"
-  );
+  console.log("Usage: react-query-helper [init | generate | watch | help]");
+  console.log("       react-query-helper [--init | --generate | --watch | --help]");
 }
 
 function runInit() {
@@ -107,8 +103,8 @@ async function processFile(filePath: string) {
     return;
   }
 
-  const sourceRoot = resolve(process.cwd(), config.sourceDir);
-  const outputRoot = resolve(process.cwd(), config.outputDir);
+  const sourceRoot = config.resolvedSourceDir;
+  const outputRoot = config.resolvedOutputDir;
   const relativePath = relative(sourceRoot, filePath);
 
   if (relativePath.startsWith("..")) {
@@ -134,9 +130,7 @@ async function processFile(filePath: string) {
     }
 
     const outputFolder =
-      relativeDir === "."
-        ? outputRoot
-        : join(outputRoot, relativeDir);
+      relativeDir === "." ? outputRoot : join(outputRoot, relativeDir);
     const outputFile = join(outputFolder, `${fileName}Options.ts`);
 
     const generatedCode = generateOptionsCode(
@@ -154,15 +148,12 @@ async function processFile(filePath: string) {
             ? [fileName]
             : relativeDir.split(sep).filter(Boolean),
         templateImportPath:
-          config.templateDir && config.templateDir.startsWith(".")
+          config.resolvedTemplateDir && config.templateDir?.startsWith(".")
             ? normalizeModulePath(
-                relative(
-                  dirname(outputFile),
-                  resolve(process.cwd(), config.templateDir)
-                ) || ".",
+                relative(dirname(outputFile), config.resolvedTemplateDir) || ".",
                 true
               )
-            : config.templateDir ?? "@uiwwsw/react-query-helper",
+            : config.resolvedTemplateDir ?? "@uiwwsw/react-query-helper",
       }
     );
 
@@ -188,8 +179,8 @@ async function runGenerate() {
   }
   config = loadedConfig;
 
-  const sourcePath = join(process.cwd(), config.sourceDir);
-  const outputRootPath = join(process.cwd(), config.outputDir);
+  const sourcePath = config.resolvedSourceDir;
+  const outputRootPath = config.resolvedOutputDir;
 
   ensureDirectory(outputRootPath);
   console.log(`📁 Ensured output directory exists at ${outputRootPath}`);
@@ -199,12 +190,12 @@ async function runGenerate() {
     const watcher = watch(sourcePath, {
       ignored:
         config.ignoredFiles?.map((file) => join(sourcePath, "**", file)) || [],
-      ignoreInitial: false, // Initial scan
-      depth: 99, // Adjust depth as needed
+      ignoreInitial: false,
+      depth: 99,
     })
       .on("add", (path) => results.push(path))
       .on("ready", () => {
-        watcher.close(); // Close watcher after initial scan
+        watcher.close();
         resolve(results);
       })
       .on("error", (error) => {
@@ -227,8 +218,8 @@ async function runWatch() {
   }
   config = loadedConfig;
 
-  const sourcePath = join(process.cwd(), config.sourceDir);
-  const outputRootPath = join(process.cwd(), config.outputDir);
+  const sourcePath = config.resolvedSourceDir;
+  const outputRootPath = config.resolvedOutputDir;
 
   ensureDirectory(outputRootPath);
   console.log(`📁 Ensured output directory exists at ${outputRootPath}`);
@@ -258,8 +249,8 @@ async function runWatch() {
         return;
       }
       console.log(`🗑️ File unlinked: ${filePath}`);
-      const sourceRoot = resolve(process.cwd(), config.sourceDir);
-      const outputRoot = resolve(process.cwd(), config.outputDir);
+      const sourceRoot = config.resolvedSourceDir;
+      const outputRoot = config.resolvedOutputDir;
       const relativePath = relative(sourceRoot, filePath);
       if (relativePath.startsWith("..")) {
         return;
