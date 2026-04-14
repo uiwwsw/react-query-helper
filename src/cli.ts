@@ -27,7 +27,7 @@ let customAnalyzerModule: CustomAnalyzerModule | null = null;
 let customTemplateModule: CustomTemplateModule | null = null;
 
 const DEFAULT_CONFIG_FILE_NAME = "rqh.config.ts";
-const DEFAULT_CONFIG_TEMPLATE = `import type { AutoQueryConfig } from "@uiwwsw/react-query-helper";
+const DEFAULT_CONFIG_TEMPLATE = `import type { AutoQueryConfig } from "@uiwwsw/react-query-helper/config";
 
 const config: AutoQueryConfig = {
   sourceDir: "./libs",
