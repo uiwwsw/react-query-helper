@@ -239,6 +239,22 @@ const config: AutoQueryConfig = {
 };
 ```
 
+For deeper customization, you can point the config at external modules.
+
+```ts
+const config: AutoQueryConfig = {
+  sourceDir: "./libs",
+  outputDir: "./src/options",
+  customAnalyzerPath: "./rqh.analyzer.mjs",
+  customTemplatePath: "./rqh.template.mjs",
+};
+```
+
+- `customAnalyzerPath`: returns your own function metadata list
+- `customTemplatePath`: returns the final generated code string
+
+That means you can now treat the package as a base engine and layer your own team-specific generator behavior on top.
+
 ```ts
 const config: AutoQueryConfig = {
   sourceDir: "./libs",

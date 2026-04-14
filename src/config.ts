@@ -26,6 +26,23 @@ export interface AutoQueryConfig {
   ignoredFiles?: string[]; // 무시할 파일 목록 (예: ['domain.ts', 'adaptor.ts'])
   analyzer?: AnalyzerConfig;
   template?: TemplateConfig;
+  customAnalyzerPath?: string;
+  customTemplatePath?: string;
+}
+
+export interface CustomAnalyzerModule {
+  analyzeFile: (filePath: string, config: ResolvedAutoQueryConfig) => Promise<unknown> | unknown;
+}
+
+export interface CustomTemplateModule {
+  generateOptionsCode: (params: {
+    functionInfos: unknown[];
+    importPath: string;
+    keySegments: string[];
+    fileName: string;
+    templateImportPath: string;
+    config: ResolvedAutoQueryConfig;
+  }) => Promise<string> | string;
 }
 
 export interface ResolvedAutoQueryConfig extends AutoQueryConfig {
@@ -34,6 +51,8 @@ export interface ResolvedAutoQueryConfig extends AutoQueryConfig {
   resolvedSourceDir: string;
   resolvedOutputDir: string;
   resolvedTemplateDir?: string;
+  resolvedCustomAnalyzerPath?: string;
+  resolvedCustomTemplatePath?: string;
 }
 
 const defaultConfig: AutoQueryConfig = {
@@ -130,6 +149,14 @@ export async function loadConfig(): Promise<ResolvedAutoQueryConfig> {
         mergedConfig.templateDir && mergedConfig.templateDir.startsWith(".")
           ? resolve(configDir, mergedConfig.templateDir)
           : mergedConfig.templateDir,
+      resolvedCustomAnalyzerPath:
+        mergedConfig.customAnalyzerPath && mergedConfig.customAnalyzerPath.startsWith(".")
+          ? resolve(configDir, mergedConfig.customAnalyzerPath)
+          : mergedConfig.customAnalyzerPath,
+      resolvedCustomTemplatePath:
+        mergedConfig.customTemplatePath && mergedConfig.customTemplatePath.startsWith(".")
+          ? resolve(configDir, mergedConfig.customTemplatePath)
+          : mergedConfig.customTemplatePath,
     };
   }
 
@@ -140,5 +167,7 @@ export async function loadConfig(): Promise<ResolvedAutoQueryConfig> {
     resolvedSourceDir: resolve(configDir, defaultConfig.sourceDir),
     resolvedOutputDir: resolve(configDir, defaultConfig.outputDir),
     resolvedTemplateDir: defaultConfig.templateDir,
+    resolvedCustomAnalyzerPath: undefined,
+    resolvedCustomTemplatePath: undefined,
   };
 }
