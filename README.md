@@ -70,9 +70,17 @@ npm install --save-dev @uiwwsw/react-query-helper
 설치 후 아래 명령으로 루트에 `rqh.config.ts`를 자동 생성할 수 있습니다.
 
 ```bash
+npx @uiwwsw/react-query-helper --init
+# 또는
+bunx @uiwwsw/react-query-helper --init
+```
+
+이미 프로젝트에 설치한 뒤라면 아래처럼 실행해도 됩니다.
+
+```bash
 npx react-query-helper --init
 # 또는
-bunx react-query-helper --init
+npm exec react-query-helper -- --init
 ```
 
 생성되는 파일 예시는 다음과 같습니다.
@@ -109,6 +117,8 @@ export default config;
 ```bash
 bun run watch      # 실시간 변경 감지
 bun run generate   # 전체 파일 일괄 생성
+# 또는
+npm exec react-query-helper -- --generate
 ```
 
 ## CLI 명령어

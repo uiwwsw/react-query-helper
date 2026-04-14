@@ -72,9 +72,17 @@ npm install --save-dev @uiwwsw/react-query-helper
 Generate `rqh.config.ts` in your project root with:
 
 ```bash
+npx @uiwwsw/react-query-helper --init
+# or
+bunx @uiwwsw/react-query-helper --init
+```
+
+If the package is already installed in your project, you can also run:
+
+```bash
 npx react-query-helper --init
 # or
-bunx react-query-helper --init
+npm exec react-query-helper -- --init
 ```
 
 The generated file looks like this:
@@ -111,6 +119,8 @@ Add scripts to `package.json` for a consistent workflow.
 ```bash
 bun run watch      # watch mode for live development
 bun run generate   # batch generation for every API file
+# or
+npm exec react-query-helper -- --generate
 ```
 
 ## CLI Commands
