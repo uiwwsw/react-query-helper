@@ -203,20 +203,23 @@ async function renderOptionsCode(params: {
   });
 }
 
+function stripTrailingIndex(modulePath: string) {
+  return modulePath.replace(/(?:\/index|^index)$/, "") || ".";
+}
+
 function resolveSourceImportPath(filePath: string, outputFile: string) {
   const sourceModulePath = filePath.replace(new RegExp(`${extname(filePath)}$`), "");
-  const relativeSourcePath = normalizeModulePath(
-    relative(config.resolvedSourceDir, sourceModulePath)
+  const relativeSourcePath = stripTrailingIndex(
+    normalizeModulePath(relative(config.resolvedSourceDir, sourceModulePath))
   );
 
   if (config.sourceImportAlias) {
     const aliasBase = config.sourceImportAlias.replace(/\/$/, "");
-    return relativeSourcePath ? `${aliasBase}/${relativeSourcePath}` : aliasBase;
+    return relativeSourcePath === "." ? aliasBase : `${aliasBase}/${relativeSourcePath}`;
   }
 
-  return normalizeModulePath(
-    relative(dirname(outputFile), sourceModulePath) || ".",
-    true
+  return stripTrailingIndex(
+    normalizeModulePath(relative(dirname(outputFile), sourceModulePath) || ".", true)
   );
 }
 
