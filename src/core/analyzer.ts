@@ -5,6 +5,7 @@ export interface FunctionInfo {
   name: string;
   parameters: string[];
   isAsync: boolean;
+  isExported: boolean;
 }
 
 export function analyzeFile(filePath: string): FunctionInfo[] {
@@ -19,9 +20,15 @@ export function analyzeFile(filePath: string): FunctionInfo[] {
   );
 
   const functionInfos: FunctionInfo[] = [];
+  const hasExportModifier = (node: ts.Node) =>
+    ts.canHaveModifiers(node) &&
+    !!ts.getModifiers(node)?.some(
+      (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword
+    );
 
   ts.forEachChild(sourceFile, (node) => {
     if (ts.isVariableStatement(node)) {
+      const isExported = hasExportModifier(node);
       node.declarationList.declarations.forEach((declaration) => {
         if (ts.isVariableDeclaration(declaration) && ts.isIdentifier(declaration.name)) {
           const initializer = declaration.initializer;
@@ -29,7 +36,7 @@ export function analyzeFile(filePath: string): FunctionInfo[] {
             const name = declaration.name.text;
             const parameters = initializer.parameters.map(param => param.name.getText(sourceFile));
             const isAsync = initializer.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) || false;
-            functionInfos.push({ name, parameters, isAsync });
+            functionInfos.push({ name, parameters, isAsync, isExported });
           }
         }
       });
@@ -38,10 +45,11 @@ export function analyzeFile(filePath: string): FunctionInfo[] {
         const name = node.name.text;
         const parameters = node.parameters.map(param => param.name.getText(sourceFile));
         const isAsync = node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) || false;
-        functionInfos.push({ name, parameters, isAsync });
+        const isExported = hasExportModifier(node);
+        functionInfos.push({ name, parameters, isAsync, isExported });
       }
     }
   });
 
-  return functionInfos;
+  return functionInfos.filter((info) => info.isExported);
 }
