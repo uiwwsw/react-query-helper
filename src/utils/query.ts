@@ -35,15 +35,19 @@ type QueryOptionOverrides<TArgs extends unknown[], TResult> = Omit<
   ) => MaybePromise<TResult>;
 };
 
-type MutationOptionOverrides<TArgs extends unknown[], TResult> = Omit<
-  UseMutationOptions<TResult, unknown, MutationVariables<TArgs>, unknown>,
+type MutationOptionOverrides<
+  TArgs extends unknown[],
+  TResult,
+  TVariables = MutationVariables<TArgs>,
+> = Omit<
+  UseMutationOptions<TResult, unknown, TVariables, unknown>,
   "mutationKey" | "mutationFn"
 > & {
   mutationKey?: QueryKey;
   appendMutationKey?: readonly unknown[];
-  mapVariablesToArgs?: (variables: MutationVariables<TArgs>) => TArgs;
+  mapVariablesToArgs?: (variables: TVariables) => TArgs;
   mutationFn?: (context: {
-    variables: MutationVariables<TArgs>;
+    variables: TVariables;
     args: TArgs;
   }) => MaybePromise<TResult>;
 };
@@ -81,11 +85,22 @@ interface QueryOptionFactory<TArgs extends unknown[], TResult> {
   ) => UseQueryOptions<TResult, unknown, TResult, BaseQueryKey>;
 }
 
-interface MutationOptionFactory<TArgs extends unknown[], TResult> {
-  (): UseMutationOptions<TResult, unknown, MutationVariables<TArgs>, unknown>;
+interface MutationOptionFactory<
+  TArgs extends unknown[],
+  TResult,
+  TVariables = MutationVariables<TArgs>,
+> {
+  (): UseMutationOptions<TResult, unknown, TVariables, unknown>;
   withOptions: (
-    overrides?: MutationOptionOverrides<TArgs, TResult>
-  ) => UseMutationOptions<TResult, unknown, MutationVariables<TArgs>, unknown>;
+    overrides?: MutationOptionOverrides<TArgs, TResult, TVariables>
+  ) => UseMutationOptions<TResult, unknown, TVariables, unknown>;
+}
+
+interface MutationOptionConfig<
+  TArgs extends unknown[],
+  TVariables = MutationVariables<TArgs>,
+> {
+  mapVariablesToArgs?: (variables: TVariables) => TArgs;
 }
 
 interface InfiniteOptionFactory<
@@ -105,10 +120,11 @@ type QueryOptionType = <T extends unknown[], J>(
   fn: AnyFn<T, J>
 ) => QueryOptionFactory<T, J>;
 
-type MutationOptionType = <TArgs extends unknown[], TResult>(
+type MutationOptionType = <TArgs extends unknown[], TResult, TVariables = MutationVariables<TArgs>>(
   key: readonly unknown[],
-  fn: AnyFn<TArgs, TResult>
-) => MutationOptionFactory<TArgs, TResult>;
+  fn: AnyFn<TArgs, TResult>,
+  config?: MutationOptionConfig<TArgs, TVariables>
+) => MutationOptionFactory<TArgs, TResult, TVariables>;
 
 type InfiniteOptionType = <T extends unknown[], K>(
   key: readonly unknown[],
@@ -193,13 +209,18 @@ export const queryOption: QueryOptionType = <T extends unknown[], J>(
   return factory;
 };
 
-export const mutationOption: MutationOptionType = <TArgs extends unknown[], TResult>(
+export const mutationOption: MutationOptionType = <
+  TArgs extends unknown[],
+  TResult,
+  TVariables = MutationVariables<TArgs>,
+>(
   key: readonly unknown[],
-  fn: AnyFn<TArgs, TResult>
+  fn: AnyFn<TArgs, TResult>,
+  config?: MutationOptionConfig<TArgs, TVariables>
 ) => {
   const buildOptions = (
-    overrides?: MutationOptionOverrides<TArgs, TResult>
-  ): UseMutationOptions<TResult, unknown, MutationVariables<TArgs>, unknown> => {
+    overrides?: MutationOptionOverrides<TArgs, TResult, TVariables>
+  ): UseMutationOptions<TResult, unknown, TVariables, unknown> => {
     const {
       appendMutationKey: _appendMutationKey,
       mutationKey: overrideMutationKey,
@@ -211,21 +232,27 @@ export const mutationOption: MutationOptionType = <TArgs extends unknown[], TRes
     return {
       mutationKey: resolveKey(key, _appendMutationKey, overrideMutationKey),
       mutationFn: (variables) => {
-      const args = mapVariablesToArgs
-        ? mapVariablesToArgs(variables)
-        : toArgs<TArgs>(variables);
+        const args = mapVariablesToArgs
+          ? mapVariablesToArgs(variables)
+          : config?.mapVariablesToArgs
+            ? config.mapVariablesToArgs(variables)
+            : toArgs<TArgs>(variables as MutationVariables<TArgs>);
 
-      if (overrideMutationFn) {
-        return Promise.resolve(overrideMutationFn({ variables, args }));
-      }
+        if (overrideMutationFn) {
+          return Promise.resolve(overrideMutationFn({ variables, args }));
+        }
 
-      return Promise.resolve(fn(...args));
-    },
+        return Promise.resolve(fn(...args));
+      },
       ...restOverrides,
     };
   };
 
-  const factory = (() => buildOptions()) as MutationOptionFactory<TArgs, TResult>;
+  const factory = (() => buildOptions()) as MutationOptionFactory<
+    TArgs,
+    TResult,
+    TVariables
+  >;
   factory.withOptions = (overrides) => buildOptions(overrides);
 
   return factory;
