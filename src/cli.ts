@@ -43,6 +43,7 @@ const config: AutoQueryConfig = {
   },
   template: {
     enabledArtifacts: ["query", "mutation", "infinite"],
+    artifactStrategy: "smart",
     keyStyle: "path",
     importNames: {
       query: "queryOption",

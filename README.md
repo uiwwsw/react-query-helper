@@ -52,8 +52,10 @@
 - **런타임/개발 분리**: generate/watch/config 로딩은 개발 시점 전용이고, 생성된 결과가 참조하는 런타임 helper 엔트리에는 `fs` 같은 Node 전용 코드가 포함되지 않도록 분리되어 있습니다.
 - **Watch & Generate 모드**: 개발 중 실시간 감시(`--watch`), 초기 세팅이나 재생성 시 일괄 생성(`--generate`)을 모두 지원합니다.
 - **일관된 옵션 관리**: `queryOption`, `mutationOption`, `infiniteOption` 유틸리티로 전역 캐싱 전략과 에러 핸들링을 통일할 수 있습니다.
+- **런타임 override 지원**: 생성된 옵션 팩토리의 `.withOptions(...)`로 헤더, queryKey, pageParam 매핑, mutation 변수 변환 등을 호출부에서 안전하게 조정할 수 있습니다.
 - **Prettier 통합**: 생성된 파일은 자동으로 포맷팅되어 코드 리뷰 시 불필요한 변경을 줄입니다.
 - **헬퍼 import 경로 커스터마이징**: `templateDir`로 생성 코드가 참조할 헬퍼 모듈 경로를 바꿀 수 있습니다.
+- **스마트 아티팩트 추론**: 기본값으로 함수 이름을 보고 query / mutation / infinite 생성을 구분해 `createUserQueryOption` 같은 어색한 결과를 줄입니다.
 - **보수적인 infinite 기본값**: `infiniteOption`은 안전한 기본 옵션만 제공하고, 실제 `pageParam` 처리 규칙은 호출부에서 override 하도록 설계되어 있습니다.
 
 ## 빠른 시작
@@ -104,6 +106,7 @@ const config: AutoQueryConfig = {
   },
   template: {
     enabledArtifacts: ["query", "mutation", "infinite"],
+    artifactStrategy: "smart",
     keyStyle: "path",
   },
 };
@@ -154,6 +157,16 @@ npm exec react-query-helper -- --generate
 | `analyzer` | ❌ | 어떤 함수를 읽을지 필터링하는 설정 (`exported-only`, `async-only`, include/exclude 등) |
 | `template` | ❌ | 어떤 아티팩트를 생성할지와 이름 규칙을 제어하는 설정 |
 
+### 스마트 생성 규칙
+
+기본 `artifactStrategy: "smart"`는 함수 이름을 보고 생성 대상을 추론합니다.
+
+- `getUsers`, `fetchPost`, `listComments` → `query` + `infinite`
+- `createUser`, `updateProfile`, `deleteComment` → `mutation`
+- 그 외 애매한 이름 → `query` + `mutation` (`infinite` 제외)
+
+원한다면 `artifactStrategy: "all"`로 예전처럼 모든 아티팩트를 강제로 생성할 수 있습니다.
+
 ## Infinite Query 기본값
 
 `infiniteOption`은 API마다 페이지네이션 규칙이 다르기 때문에, 기본 구현에서는 `pageParam`을 자동 병합하지 않습니다.
@@ -167,6 +180,38 @@ const usersInfinite = {
   queryFn: ({ pageParam }) => getUsers({ page: pageParam }),
   getNextPageParam: (lastPage) => lastPage.nextPage,
 };
+```
+
+더 복잡한 케이스에서는 `.withOptions(...)`를 쓰면 헤더나 `pageParam` 매핑도 한 곳에서 처리할 수 있습니다.
+
+```ts
+const usersInfinite = getUsersInfiniteQueryOption.withOptions(
+  {
+    initialPageParam: 1,
+    pageParamToArgs: (pageParam, [params]) => [{
+      ...params,
+      page: pageParam,
+      headers: {
+        ...params.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    }],
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  },
+  { page: 1, headers: {} }
+);
+```
+
+Mutation도 `mutateAsync`에서 쓰는 변수를 원하는 인자 구조로 바꿔 연결할 수 있습니다.
+
+```ts
+const updateUserMutation = updateUserMutationOption.withOptions({
+  mapVariablesToArgs: ({ id, body }) => [
+    id,
+    body,
+    { Authorization: `Bearer ${token}` },
+  ],
+});
 ```
 
 ## 배포 방식
@@ -204,16 +249,10 @@ import {
 
 export const getUserKey = ["users", "getUser"] as const;
 export const getUserQueryOption = queryOption(getUserKey, getUser);
-export const getUserMutationOption = mutationOption(getUserKey, getUser);
 export const getUserInfiniteQueryOption = infiniteOption(getUserKey, getUser);
 
 export const createUserKey = ["users", "createUser"] as const;
-export const createUserQueryOption = queryOption(createUserKey, createUser);
 export const createUserMutationOption = mutationOption(createUserKey, createUser);
-export const createUserInfiniteQueryOption = infiniteOption(
-  createUserKey,
-  createUser
-);
 ```
 
 ## 헬퍼 경로 커스터마이징

@@ -57,9 +57,10 @@
   "sideEffects": false,
   "scripts": {
     "start": "bun run src/index.ts",
-    "build": "tsc && bun build src/cli.ts --outdir dist --target node --external typescript --external prettier && bun build src/index.ts --outdir dist --target node --external typescript --external prettier && bun build src/config.ts --outdir dist --target node --external typescript --external prettier && node scripts/prepend-shebang.cjs dist/cli.js",
+    "build": "tsc && bun build src/cli.ts --outdir dist --target node --external typescript --external prettier && bun build src/index.ts --outdir dist --target node --external typescript --external prettier && bun build src/config.ts --outdir dist --target node --external typescript --external prettier && bun build src/core/analyzer.ts --outdir dist/core --target node --external typescript --external prettier && bun build src/core/generator.ts --outdir dist/core --target node --external typescript --external prettier && node scripts/prepend-shebang.cjs dist/cli.js",
     "dev": "bun run src/cli.ts --watch",
-    "generate": "bun run src/cli.ts --generate"
+    "generate": "bun run src/cli.ts --generate",
+    "test": "npm run build && node --test test/**/*.test.mjs"
   },
   "devDependencies": {
     "@types/bun": "latest",
