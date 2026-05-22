@@ -92,11 +92,38 @@ test("mutationOption.withOptions can normalize mutateAsync variables", async () 
   });
 });
 
+test("mutationOption can expose typed object payloads for mutateAsync-style calls", async () => {
+  const createPost = async (body, headers) => ({ body, headers });
+  const optionFactory = mutationOption(
+    ["posts", "create"],
+    createPost,
+    {
+      mapVariablesToArgs: (variables) => [variables.body, variables.headers],
+    }
+  );
+
+  const option = optionFactory();
+  const result = await option.mutationFn({
+    body: { title: "hello" },
+    headers: { Authorization: "Bearer token" },
+  });
+
+  assert.deepEqual(result, {
+    body: { title: "hello" },
+    headers: { Authorization: "Bearer token" },
+  });
+});
+
 test("generateOptionsCode uses smart artifact inference by default", () => {
   const code = generateOptionsCode(
     [
-      { name: "getUsers", parameters: [], isAsync: true, isExported: true },
-      { name: "createUser", parameters: [], isAsync: true, isExported: true },
+      { name: "getUsers", parameters: ["params"], isAsync: true, isExported: true },
+      {
+        name: "createUser",
+        parameters: ["body", "headers"],
+        isAsync: true,
+        isExported: true,
+      },
     ],
     "@/apis/users",
     {
@@ -115,4 +142,8 @@ test("generateOptionsCode uses smart artifact inference by default", () => {
   assert.match(code, /createUserMutationOption/);
   assert.doesNotMatch(code, /createUserQueryOption/);
   assert.doesNotMatch(code, /createUserInfiniteQueryOption/);
+  assert.match(code, /export type createUserMutationVariables = \{/);
+  assert.match(code, /body: Parameters<typeof createUser>\[0\];/);
+  assert.match(code, /headers: Parameters<typeof createUser>\[1\];/);
+  assert.match(code, /mapVariablesToArgs: \(variables\) => \[variables.body, variables.headers\]/);
 });

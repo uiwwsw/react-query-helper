@@ -216,6 +216,28 @@ const updateUserMutation = updateUserMutationOption.withOptions({
 });
 ```
 
+When an API function accepts multiple arguments, the generator can also emit an object payload type that fits `mutateAsync` naturally.
+
+```ts
+export type createUserMutationVariables = {
+  body: Parameters<typeof createUser>[0];
+  headers: Parameters<typeof createUser>[1];
+};
+
+export const createUserMutationOption = mutationOption<
+  Parameters<typeof createUser>,
+  Awaited<ReturnType<typeof createUser>>,
+  createUserMutationVariables
+>(createUserKey, createUser, {
+  mapVariablesToArgs: (variables) => [variables.body, variables.headers],
+});
+
+await mutateAsync({
+  body: { name: "matthew" },
+  headers: { Authorization: `Bearer ${token}` },
+});
+```
+
 ## Release Flow
 
 GitHub Actions now publishes to npm only on `v*` tag pushes or manual workflow runs instead of every push to `main`.
@@ -235,8 +257,11 @@ export const getUser = async (id: string) => {
   return { id, name: `User ${id}` };
 };
 
-export const createUser = async (name: string) => {
-  return { id: Date.now().toString(), name };
+export const createUser = async (
+  body: { name: string },
+  headers?: Record<string, string>
+) => {
+  return { id: Date.now().toString(), name: body.name, headers };
 };
 ```
 
@@ -254,7 +279,18 @@ export const getUserQueryOption = queryOption(getUserKey, getUser);
 export const getUserInfiniteQueryOption = infiniteOption(getUserKey, getUser);
 
 export const createUserKey = ["users", "createUser"] as const;
-export const createUserMutationOption = mutationOption(createUserKey, createUser);
+export type createUserMutationVariables = {
+  body: Parameters<typeof createUser>[0];
+  headers: Parameters<typeof createUser>[1];
+};
+
+export const createUserMutationOption = mutationOption<
+  Parameters<typeof createUser>,
+  Awaited<ReturnType<typeof createUser>>,
+  createUserMutationVariables
+>(createUserKey, createUser, {
+  mapVariablesToArgs: (variables) => [variables.body, variables.headers],
+});
 ```
 
 ## Custom Helper Imports

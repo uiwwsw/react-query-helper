@@ -214,6 +214,28 @@ const updateUserMutation = updateUserMutationOption.withOptions({
 });
 ```
 
+API 함수가 여러 인자를 받으면, 생성 코드가 `mutateAsync`에서 바로 쓰기 좋은 object payload 타입도 함께 만들어 줍니다.
+
+```ts
+export type createUserMutationVariables = {
+  body: Parameters<typeof createUser>[0];
+  headers: Parameters<typeof createUser>[1];
+};
+
+export const createUserMutationOption = mutationOption<
+  Parameters<typeof createUser>,
+  Awaited<ReturnType<typeof createUser>>,
+  createUserMutationVariables
+>(createUserKey, createUser, {
+  mapVariablesToArgs: (variables) => [variables.body, variables.headers],
+});
+
+await mutateAsync({
+  body: { name: "matthew" },
+  headers: { Authorization: `Bearer ${token}` },
+});
+```
+
 ## 배포 방식
 
 GitHub Actions의 npm 배포는 이제 `main` 푸시가 아니라 `v*` 태그 푸시 또는 수동 실행에서만 동작합니다.
@@ -233,8 +255,11 @@ export const getUser = async (id: string) => {
   return { id, name: `User ${id}` };
 };
 
-export const createUser = async (name: string) => {
-  return { id: Date.now().toString(), name };
+export const createUser = async (
+  body: { name: string },
+  headers?: Record<string, string>
+) => {
+  return { id: Date.now().toString(), name: body.name, headers };
 };
 ```
 
@@ -252,7 +277,22 @@ export const getUserQueryOption = queryOption(getUserKey, getUser);
 export const getUserInfiniteQueryOption = infiniteOption(getUserKey, getUser);
 
 export const createUserKey = ["users", "createUser"] as const;
-export const createUserMutationOption = mutationOption(createUserKey, createUser);
+export type createUserMutationVariables = {
+  body: Parameters<typeof createUser>[0];
+  headers: Parameters<typeof createUser>[1];
+};
+
+export const createUserMutationOption = mutationOption<
+  Parameters<typeof createUser>,
+  Awaited<ReturnType<typeof createUser>>,
+  createUserMutationVariables
+>(
+  createUserKey,
+  createUser,
+  {
+    mapVariablesToArgs: (variables) => [variables.body, variables.headers],
+  }
+);
 ```
 
 ## 헬퍼 경로 커스터마이징
