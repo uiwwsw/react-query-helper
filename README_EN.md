@@ -52,8 +52,10 @@ By default, only exported functions in each file are analyzed for generation.
 - **Runtime/dev separation** – generate/watch/config loading stay dev-only, and the runtime helper entry used by generated files stays free of Node-only modules like `fs`.
 - **Watch & Generate modes** – Use `--watch` during development for live updates or `--generate` for bootstrapping and regeneration.
 - **Consistent query options** – Centralize caching, retry, and error handling via `queryOption`, `mutationOption`, and `infiniteOption` utilities.
+- **Runtime overrides** – Use `.withOptions(...)` on generated factories to adjust headers, query keys, page-param mapping, or mutation variable shaping without rewriting the generated file.
 - **Prettier integration** – All emitted files are formatted automatically to minimize noisy diffs.
 - **Custom helper imports** – Use `templateDir` to change where generated files import `queryOption`, `mutationOption`, and `infiniteOption` from.
+- **Smart artifact inference** – By default the generator infers whether a function should emit query, mutation, or infinite helpers, so `createUserQueryOption` is no longer emitted unless you explicitly opt in.
 - **Conservative infinite defaults** – `infiniteOption` ships with a safe baseline and expects callers to override pagination-specific `pageParam` behavior.
 
 ## Quick Start
@@ -106,6 +108,7 @@ const config: AutoQueryConfig = {
   },
   template: {
     enabledArtifacts: ["query", "mutation", "infinite"],
+    artifactStrategy: "smart",
     keyStyle: "path",
   },
 };
@@ -156,6 +159,16 @@ npm exec react-query-helper -- --generate
 | `analyzer` | ❌ | Filters which functions are analyzed (`exported-only`, `async-only`, include/exclude lists, etc.). |
 | `template` | ❌ | Controls which artifacts are generated and how they are named. |
 
+## Smart Artifact Strategy
+
+The default `artifactStrategy: "smart"` infers artifacts from function names.
+
+- `getUsers`, `fetchPost`, `listComments` → `query` + `infinite`
+- `createUser`, `updateProfile`, `deleteComment` → `mutation`
+- ambiguous names → `query` + `mutation` (but not `infinite`)
+
+If you want the previous behavior, set `artifactStrategy: "all"`.
+
 ## Infinite Query Defaults
 
 Because pagination rules vary by API, `infiniteOption` does not merge `pageParam` into your request automatically.
@@ -169,6 +182,38 @@ const usersInfinite = {
   queryFn: ({ pageParam }) => getUsers({ page: pageParam }),
   getNextPageParam: (lastPage) => lastPage.nextPage,
 };
+```
+
+For more advanced cases, `.withOptions(...)` lets you centralize header injection and page-param mapping.
+
+```ts
+const usersInfinite = getUsersInfiniteQueryOption.withOptions(
+  {
+    initialPageParam: 1,
+    pageParamToArgs: (pageParam, [params]) => [{
+      ...params,
+      page: pageParam,
+      headers: {
+        ...params.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    }],
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  },
+  { page: 1, headers: {} }
+);
+```
+
+Mutations can also normalize the variables passed through `mutateAsync`.
+
+```ts
+const updateUserMutation = updateUserMutationOption.withOptions({
+  mapVariablesToArgs: ({ id, body }) => [
+    id,
+    body,
+    { Authorization: `Bearer ${token}` },
+  ],
+});
 ```
 
 ## Release Flow
@@ -206,16 +251,10 @@ import {
 
 export const getUserKey = ["users", "getUser"] as const;
 export const getUserQueryOption = queryOption(getUserKey, getUser);
-export const getUserMutationOption = mutationOption(getUserKey, getUser);
 export const getUserInfiniteQueryOption = infiniteOption(getUserKey, getUser);
 
 export const createUserKey = ["users", "createUser"] as const;
-export const createUserQueryOption = queryOption(createUserKey, createUser);
 export const createUserMutationOption = mutationOption(createUserKey, createUser);
-export const createUserInfiniteQueryOption = infiniteOption(
-  createUserKey,
-  createUser
-);
 ```
 
 ## Custom Helper Imports

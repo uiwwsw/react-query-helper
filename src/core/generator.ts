@@ -2,12 +2,14 @@ import type { FunctionInfo } from "./analyzer";
 
 export type GeneratedArtifact = "query" | "mutation" | "infinite";
 export type KeyStyle = "path" | "file-only" | "function-only";
+export type ArtifactStrategy = "all" | "smart";
 
 export interface TemplateConfig {
   importNames?: Partial<Record<GeneratedArtifact, string>>;
   outputNames?: Partial<Record<GeneratedArtifact, string>>;
   enabledArtifacts?: GeneratedArtifact[];
   keyStyle?: KeyStyle;
+  artifactStrategy?: ArtifactStrategy;
 }
 
 interface GenerateOptionsParams {
@@ -28,6 +30,34 @@ const DEFAULT_OUTPUT_NAMES: Record<GeneratedArtifact, string> = {
   mutation: "MutationOption",
   infinite: "InfiniteQueryOption",
 };
+
+const MUTATION_NAME_PATTERN =
+  /^(create|post|add|update|put|patch|delete|remove|set|send|upload|signIn|signOut|login|logout|mutate)/i;
+
+const QUERY_NAME_PATTERN =
+  /^(get|list|fetch|find|read|load|search|retrieve|detail|details)/i;
+
+function resolveArtifacts(
+  info: FunctionInfo,
+  enabledArtifacts: GeneratedArtifact[],
+  strategy: ArtifactStrategy
+) {
+  if (strategy === "all") {
+    return enabledArtifacts;
+  }
+
+  if (MUTATION_NAME_PATTERN.test(info.name)) {
+    return enabledArtifacts.filter((artifact) => artifact === "mutation");
+  }
+
+  if (QUERY_NAME_PATTERN.test(info.name)) {
+    return enabledArtifacts.filter(
+      (artifact) => artifact === "query" || artifact === "infinite"
+    );
+  }
+
+  return enabledArtifacts.filter((artifact) => artifact !== "infinite");
+}
 
 function getKeySegments(
   info: FunctionInfo,
@@ -69,7 +99,9 @@ export function generateOptionsCode(
     ...template?.outputNames,
   };
 
-  const helperImports = enabledArtifacts.map((artifact) => importNames[artifact]);
+  const artifactStrategy = template?.artifactStrategy ?? "smart";
+
+  const helperImports = [...new Set(enabledArtifacts.map((artifact) => importNames[artifact]))];
   const functionNames = functionInfos.map((info) => info.name);
   const keyStyle = template?.keyStyle ?? "path";
 
@@ -77,6 +109,16 @@ export function generateOptionsCode(
   newContent += `import { ${helperImports.join(", ")} } from "${templateImportPath}";\n\n`;
 
   functionInfos.forEach((info) => {
+    const resolvedArtifacts = resolveArtifacts(
+      info,
+      enabledArtifacts,
+      artifactStrategy
+    );
+
+    if (resolvedArtifacts.length === 0) {
+      return;
+    }
+
     const keyArray = JSON.stringify(
       getKeySegments(info, fileName, keySegments, keyStyle)
     );
@@ -84,7 +126,7 @@ export function generateOptionsCode(
 
     newContent += `export const ${keyName} = ${keyArray} as const;\n`;
 
-    enabledArtifacts.forEach((artifact) => {
+    resolvedArtifacts.forEach((artifact) => {
       newContent += `export const ${info.name}${outputNames[artifact]} = ${importNames[artifact]}(${keyName}, ${info.name});\n`;
     });
 
