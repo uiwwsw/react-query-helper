@@ -202,7 +202,12 @@ const usersInfinite = getUsersInfiniteQueryOption.withOptions(
 );
 ```
 
-Mutation도 `mutateAsync`에서 쓰는 변수를 원하는 인자 구조로 바꿔 연결할 수 있습니다.
+Mutation도 호출 방식에 따라 자연스럽게 맞춰집니다.
+
+- API 함수가 인자 1개면 기존처럼 `mutate(body)` / `mutateAsync(body)`
+- API 함수가 인자 여러 개면 생성 코드가 object payload 타입을 만들어 `mutate({ body, headers })` / `mutateAsync({ body, headers })`
+
+간단한 커스텀 매핑이 필요하면 `withOptions(...)`로도 연결할 수 있습니다.
 
 ```ts
 const updateUserMutation = updateUserMutationOption.withOptions({
@@ -214,7 +219,7 @@ const updateUserMutation = updateUserMutationOption.withOptions({
 });
 ```
 
-API 함수가 여러 인자를 받으면, 생성 코드가 `mutateAsync`에서 바로 쓰기 좋은 object payload 타입도 함께 만들어 줍니다.
+API 함수가 여러 인자를 받으면, 생성 코드가 `mutate` / `mutateAsync`에서 바로 쓰기 좋은 object payload 타입도 함께 만들어 줍니다.
 
 ```ts
 export type createUserMutationVariables = {
@@ -228,6 +233,11 @@ export const createUserMutationOption = mutationOption<
   createUserMutationVariables
 >(createUserKey, createUser, {
   mapVariablesToArgs: (variables) => [variables.body, variables.headers],
+});
+
+mutate({
+  body: { name: "matthew" },
+  headers: { Authorization: `Bearer ${token}` },
 });
 
 await mutateAsync({

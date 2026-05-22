@@ -204,7 +204,12 @@ const usersInfinite = getUsersInfiniteQueryOption.withOptions(
 );
 ```
 
-Mutations can also normalize the variables passed through `mutateAsync`.
+Mutations now keep the common calling style naturally aligned with the API signature.
+
+- single-argument API → `mutate(body)` / `mutateAsync(body)`
+- multi-argument API → generated object payload type, so `mutate({ body, headers })` / `mutateAsync({ body, headers })`
+
+If you need a custom mapping, `withOptions(...)` can still reshape the variables.
 
 ```ts
 const updateUserMutation = updateUserMutationOption.withOptions({
@@ -216,7 +221,7 @@ const updateUserMutation = updateUserMutationOption.withOptions({
 });
 ```
 
-When an API function accepts multiple arguments, the generator can also emit an object payload type that fits `mutateAsync` naturally.
+When an API function accepts multiple arguments, the generator can emit an object payload type that fits both `mutate` and `mutateAsync` naturally.
 
 ```ts
 export type createUserMutationVariables = {
@@ -230,6 +235,11 @@ export const createUserMutationOption = mutationOption<
   createUserMutationVariables
 >(createUserKey, createUser, {
   mapVariablesToArgs: (variables) => [variables.body, variables.headers],
+});
+
+mutate({
+  body: { name: "matthew" },
+  headers: { Authorization: `Bearer ${token}` },
 });
 
 await mutateAsync({
