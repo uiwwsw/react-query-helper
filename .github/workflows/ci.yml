@@ -8,6 +8,7 @@ permissions:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         node: [22, 24]
         react: [18, 19]

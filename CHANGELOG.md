@@ -24,6 +24,7 @@
 - Load TypeScript/CommonJS configs and plugins with relative imports through Jiti; validate options and plugin contracts.
 - Exclude output directories from source scans; support standard ignore globs; detect symlink and output collisions.
 - Reconcile only owned stale files after a successful analysis, avoid unchanged writes, serialize watch passes and recover after errors.
+- Wait for watcher readiness and reconcile startup edits before announcing that watch is active.
 - Report generation failures with nonzero exit codes; add explicit config selection and read-only output checks.
 
 ### Maintenance
