@@ -25,7 +25,7 @@
   <a href="https://github.com/uiwwsw/react-query-helper/blob/main/README.md">한국어</a>
 </p>
 
-> **Version notice:** This README describes **2.x on main**. npm currently has **1.3.0**; publication of 2.0.0 is waiting for publishing access to be configured. Read the [1.3.0 docs](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README_EN.md), or [install 2.x from source](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#install-from-source-before-npm-publication).
+> **Version notice:** This README describes **2.x**. Check the npm badge above for the published version. If you use 1.x, read the [1.3.0 docs](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README_EN.md) and [migration guide](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x). To try changes not yet published, [install from source](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#install-from-source-before-npm-publication).
 
 ## What Does It Remove?
 
@@ -47,9 +47,6 @@ Name-based generation rules are [explicitly configurable](https://github.com/uiw
 ## Quick Start
 
 ### 1. Install and Initialize
-
-**The npm install command below is for after the 2.x release is published.**
-To try it now, install the source tarball linked above, then continue at `init`.
 
 ```sh
 npm install @uiwwsw/react-query-helper@^2 @tanstack/react-query react

@@ -25,7 +25,7 @@
   <a href="https://github.com/uiwwsw/react-query-helper/blob/main/README_EN.md">English</a>
 </p>
 
-> **버전 안내:** 이 문서는 저장소 `main`의 **2.x** 기준입니다. 현재 npm에는 **1.3.0**이 게시되어 있고, 2.0.0은 게시 권한 설정을 기다리고 있습니다. [1.3.0 문서](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README.md)를 보거나 [소스에서 2.x를 설치](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#npm-게시-전-소스에서-설치하기)하세요.
+> **버전 안내:** 이 문서는 **2.x** 기준입니다. 실제 게시 버전은 위 npm 배지에서 확인하세요. 1.x를 사용 중이라면 [1.3.0 문서](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README.md)와 [마이그레이션 가이드](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전)를 참고하세요. 아직 게시되지 않은 변경은 [소스에서 설치](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#npm-게시-전-소스에서-설치하기)할 수 있습니다.
 
 ## 무엇을 줄여주나요?
 
@@ -47,9 +47,6 @@
 ## 빠른 시작
 
 ### 1. 설치하고 초기화
-
-**아래 npm 설치 명령은 2.x 게시 후 사용합니다.** 지금 확인하려면 위의 소스 설치 경로로
-패키지를 설치한 뒤 `init`부터 진행하세요.
 
 ```sh
 npm install @uiwwsw/react-query-helper@^2 @tanstack/react-query react

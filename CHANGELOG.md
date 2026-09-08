@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.1
+
+The v2.0.0 tag was not published to npm. This release includes all of the 2.0.0
+changes below, including the breaking changes for applications upgrading from 1.x.
+
+- Simplify Korean/English onboarding and move detailed configuration and recipes into reference guides.
+- Introduce the Q symbol, light/dark README banners, and documented brand assets.
+- Add regression tests for documentation links, SVG assets, and generated/typechecked README examples.
+- Refresh release guidance and source-install examples for 2.0.1.
+
 ## 2.0.0
 
 ### Breaking Changes

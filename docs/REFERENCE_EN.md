@@ -296,7 +296,7 @@ npm pack
 ```
 
 From **your application directory**, install the resulting tarball using its actual path:
-`npm install /absolute/path/to/uiwwsw-react-query-helper-2.0.0.tgz`.
+`npm install /absolute/path/to/uiwwsw-react-query-helper-2.0.1.tgz`.
 Also install React and TanStack Query in the application, then continue at the README's
 `init` step. The prepack build includes the required dist files in the tarball.
 
