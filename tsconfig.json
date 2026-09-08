@@ -16,7 +16,7 @@
     "rootDir": "./src", // 소스 파일의 루트 디렉토리
     "outDir": "./dist", // 컴파일된 파일이 저장될 디렉토리
     "declaration": true, // .d.ts 파일 생성
-    "declarationMap": true, // .d.ts.map 파일 생성
+    "declarationMap": false,
 
     // Best practices
     "strict": true,

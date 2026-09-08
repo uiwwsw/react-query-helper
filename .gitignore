@@ -1,4 +1,6 @@
 # Logs
+.DS_Store
+.test-rqh-*
 logs
 *.log
 npm-debug.log*

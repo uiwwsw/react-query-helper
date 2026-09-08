@@ -1,12 +1,12 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "license": "MIT",
-  "description": "React Query Helper is a CLI tool that automatically generates React Query hooks and option objects from TypeScript API functions.",
+  "description": "Generate type-safe TanStack Query v5 option factories from TypeScript API functions.",
   "keywords": [
     "react",
     "react-query",
@@ -28,7 +28,9 @@
   },
   "author": "uiwwsw",
   "files": [
-    "dist"
+    "dist",
+    "README_EN.md",
+    "CHANGELOG.md"
   ],
   "bin": {
     "react-query-helper": "dist/cli.js"
@@ -38,42 +40,48 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./config": {
-      "import": "./dist/config.js",
-      "types": "./dist/config.d.ts"
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js"
     },
     "./core/analyzer": {
-      "import": "./dist/core/analyzer.js",
-      "types": "./dist/core/analyzer.d.ts"
+      "types": "./dist/core/analyzer.d.ts",
+      "import": "./dist/core/analyzer.js"
     },
     "./core/generator": {
-      "import": "./dist/core/generator.js",
-      "types": "./dist/core/generator.d.ts"
+      "types": "./dist/core/generator.d.ts",
+      "import": "./dist/core/generator.js"
     }
   },
   "sideEffects": false,
   "scripts": {
-    "start": "bun run src/index.ts",
-    "build": "tsc && bun build src/cli.ts --outdir dist --target node --external typescript --external prettier && bun build src/index.ts --outdir dist --target node --external typescript --external prettier && bun build src/config.ts --outdir dist --target node --external typescript --external prettier && bun build src/core/analyzer.ts --outdir dist/core --target node --external typescript --external prettier && bun build src/core/generator.ts --outdir dist/core --target node --external typescript --external prettier && node scripts/prepend-shebang.cjs dist/cli.js",
-    "dev": "bun run src/cli.ts --watch",
-    "generate": "bun run src/cli.ts --generate",
-    "test": "npm run build && node --test test/**/*.test.mjs"
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && node dist/cli.js watch",
+    "generate": "npm run build && node dist/cli.js generate",
+    "test": "npm run build && node --test test/*.test.mjs && tsc -p test/tsconfig.json && tsc -p test/tsconfig.register.json",
+    "prepack": "npm run build",
+    "smoke": "node scripts/smoke.mjs"
   },
   "devDependencies": {
-    "@types/bun": "latest",
+    "@tanstack/react-query": "^5.102.8",
     "@types/node": "^24.1.0",
-    "chokidar": "^4.0.3"
+    "@types/picomatch": "^4.0.3",
+    "@types/react": "^19.2.18",
+    "esbuild": "^0.28.2",
+    "react": "^19.2.8"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^5.83.0"
+    "@tanstack/react-query": "^5.102.8"
   },
   "dependencies": {
-    "fs": "^0.0.1-security",
+    "jiti": "^2.7.0",
+    "picomatch": "^4.0.7",
     "prettier": "^3.6.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "chokidar": "^4.0.3"
   },
   "engines": {
     "node": ">=22"
