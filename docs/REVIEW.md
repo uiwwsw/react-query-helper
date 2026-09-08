@@ -7,6 +7,11 @@ The latest baseline publish workflow succeeded. Older failed workflow logs have
 expired (GitHub returned HTTP 410), so their exact causes are not reconstructed
 from speculation.
 
+The first 2.0.0 CI run exposed a watcher-readiness race on Linux/Node 22:
+changes immediately after the startup message could be missed. Watch now waits
+for the filesystem watcher to be ready and reconciles startup edits before
+announcing readiness; the regression test edits immediately after that message.
+
 ## Findings and Resolution
 
 | Priority | Observed problem in 1.3.0                                                 | Resolution                                                                | Verification                                               |

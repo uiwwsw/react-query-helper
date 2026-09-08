@@ -383,7 +383,15 @@ async function main() {
   };
   process.once("SIGINT", () => void close());
   process.once("SIGTERM", () => void close());
-  console.log(`Watching ${config.resolvedSourceDir}`);
+  await new Promise<void>((resolve, reject) => {
+    watcher.once("ready", resolve);
+    watcher.once("error", reject);
+  });
+  // Reconcile edits made between the initial generation and watcher readiness.
+  pending = true;
+  if (!running) active = drain();
+  await active;
+  if (!closing) console.log(`Watching ${config.resolvedSourceDir}`);
 }
 main().catch((error) => {
   console.error(error instanceof Error ? error.message : error);

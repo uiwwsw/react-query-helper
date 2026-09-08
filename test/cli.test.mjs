@@ -268,7 +268,7 @@ test("output symlinks cannot overwrite a source or outside file", async (t) => {
   assert.equal(await readFile(join(root, "outside.ts"), "utf8"), "// outside");
 });
 
-test("watch regenerates changes, recovers after errors and removes deleted sources", async (t) => {
+test("watch is ready before announcing startup, recovers after errors and removes deleted sources", async (t) => {
   const root = await fixture(t, {
     "rqh.config.ts": config,
     "api/users.ts": source,
@@ -294,6 +294,7 @@ test("watch regenerates changes, recovers after errors and removes deleted sourc
   }
   const output = join(root, "generated/usersOptions.ts");
   await until(() => logs.includes("Watching"));
+  // An immediate edit after the readiness message must not be lost.
   await writeFile(
     join(root, "api/users.ts"),
     "export const getUpdated = () => 2;",
@@ -312,8 +313,9 @@ test("watch regenerates changes, recovers after errors and removes deleted sourc
     async () =>
       !(await readdir(join(root, "generated"))).includes("usersOptions.ts"),
   );
+  const exit = new Promise((resolve) => child.once("exit", resolve));
   child.kill("SIGTERM");
-  await new Promise((r) => child.once("exit", r));
+  assert.equal(await exit, 0);
 });
 
 test("TypeScript plugins can import relative dependencies and invalid results fail", async (t) => {
