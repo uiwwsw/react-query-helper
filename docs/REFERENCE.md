@@ -294,8 +294,8 @@ npm test
 npm pack
 ```
 
-생성된 `uiwwsw-react-query-helper-2.0.0.tgz`의 실제 경로를 사용해 **앱 디렉토리에서**
-`npm install /absolute/path/to/uiwwsw-react-query-helper-2.0.0.tgz`를 실행합니다.
+생성된 `uiwwsw-react-query-helper-2.0.1.tgz`의 실제 경로를 사용해 **앱 디렉토리에서**
+`npm install /absolute/path/to/uiwwsw-react-query-helper-2.0.1.tgz`를 실행합니다.
 React와 TanStack Query도 앱에 설치한 뒤 README의 `init` 단계부터 진행하세요.
 `npm pack`은 prepack 빌드를 실행하므로 배포에 필요한 dist도 포함됩니다.
 
