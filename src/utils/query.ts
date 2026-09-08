@@ -1,308 +1,310 @@
-import type {
-  QueryKey,
-  UseInfiniteQueryOptions,
-  UseMutationOptions,
-  UseQueryOptions,
+import {
+  infiniteQueryOptions,
+  mutationOptions,
+  queryOptions,
+  type DataTag,
+  type DefaultError,
+  type InfiniteData,
+  type MutationFunctionContext,
+  type MutationKey,
+  type QueryFunctionContext,
+  type QueryKey,
+  type UseInfiniteQueryOptions,
+  type UseMutationOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
 
-type MaybePromise<T> = T | Promise<T>;
-type AnyFn<TArgs extends unknown[] = unknown[], TResult = unknown> = (
-  ...payload: TArgs
+type MaybePromise<T> = T | PromiseLike<T>;
+type Api<TArgs extends unknown[], TResult> = (
+  ...args: TArgs
 ) => MaybePromise<TResult>;
-type MutationVariables<TArgs extends unknown[]> = TArgs extends []
+export type MutationVariables<TArgs extends unknown[]> = TArgs extends []
   ? void
-  : TArgs extends [infer Only]
-    ? Only
+  : TArgs extends [unknown?]
+    ? TArgs[0]
     : TArgs;
-
-type BaseQueryKey = readonly unknown[];
-
-type QueryOptionOverrides<TArgs extends unknown[], TResult> = Omit<
-  UseQueryOptions<TResult, unknown, TResult, BaseQueryKey>,
-  "queryKey" | "queryFn"
-> & {
-  queryKey?: QueryKey;
-  appendQueryKey?: readonly unknown[];
+type ArgumentOptions<TArgs extends unknown[]> = {
   args?: TArgs;
   mapArgs?: (args: TArgs) => TArgs;
-  queryFn?: (
-    context: {
-      queryKey: BaseQueryKey;
-      signal: AbortSignal;
-      meta: Record<string, unknown> | undefined;
-      args: TArgs;
-    }
-  ) => MaybePromise<TResult>;
 };
-
-type MutationOptionOverrides<
+export type QueryResult<TResult, TData = TResult> = Omit<
+  UseQueryOptions<TResult, DefaultError, TData>,
+  "queryFn" | "queryKey"
+> & {
+  queryKey: DataTag<QueryKey, TResult, DefaultError>;
+  queryFn: (context: QueryFunctionContext) => Promise<TResult>;
+};
+type InitialValue<T> = Exclude<T, undefined> | (() => Exclude<T, undefined>);
+export type DefinedQueryResult<TResult, TData = TResult> = QueryResult<
+  TResult,
+  TData
+> & {
+  initialData: InitialValue<TResult>;
+};
+export type InfiniteResult<
+  TResult,
+  TPageParam,
+  TData = InfiniteData<TResult, TPageParam>,
+> = Omit<
+  UseInfiniteQueryOptions<TResult, DefaultError, TData, QueryKey, TPageParam>,
+  "queryFn" | "queryKey"
+> & {
+  queryKey: DataTag<QueryKey, InfiniteData<TResult>, DefaultError>;
+  queryFn: (
+    context: QueryFunctionContext<QueryKey, TPageParam>,
+  ) => Promise<TResult>;
+};
+export type MutationResult<TResult, TVariables, TOnMutateResult> =
+  UseMutationOptions<TResult, DefaultError, TVariables, TOnMutateResult> & {
+    mutationKey: MutationKey;
+    mutationFn: (
+      variables: TVariables,
+      context: MutationFunctionContext,
+    ) => Promise<TResult>;
+  };
+export type QueryOptionOverrides<
   TArgs extends unknown[],
   TResult,
-  TVariables = MutationVariables<TArgs>,
+  TData = TResult,
 > = Omit<
-  UseMutationOptions<TResult, unknown, TVariables, unknown>,
+  UseQueryOptions<TResult, DefaultError, TData>,
+  "queryKey" | "queryFn"
+> &
+  ArgumentOptions<TArgs> & {
+    queryKey?: QueryKey;
+    appendQueryKey?: readonly unknown[];
+    queryFn?: (
+      context: QueryFunctionContext & { args: TArgs },
+    ) => MaybePromise<TResult>;
+  };
+export type InfiniteOptionOverrides<
+  TArgs extends unknown[],
+  TResult,
+  TPageParam,
+  TData = InfiniteData<TResult, TPageParam>,
+> = Omit<
+  UseInfiniteQueryOptions<TResult, DefaultError, TData, QueryKey, TPageParam>,
+  "queryKey" | "queryFn"
+> &
+  ArgumentOptions<TArgs> & {
+    queryKey?: QueryKey;
+    appendQueryKey?: readonly unknown[];
+    pageParamToArgs?: (pageParam: TPageParam, args: TArgs) => TArgs;
+    queryFn?: (
+      context: QueryFunctionContext<QueryKey, TPageParam> & { args: TArgs },
+    ) => MaybePromise<TResult>;
+  };
+export type MutationOptionConfig<TArgs extends unknown[], TVariables> =
+  | {
+      mapVariablesToArgs: (variables: TVariables) => TArgs;
+      variablesMode?: never;
+    }
+  | (TArgs extends [unknown?]
+      ? never
+      : TVariables extends TArgs
+        ? { variablesMode: "tuple"; mapVariablesToArgs?: never }
+        : never);
+export type MutationOptionOverrides<
+  TArgs extends unknown[],
+  TResult,
+  TVariables,
+  TOnMutateResult = unknown,
+> = Omit<
+  UseMutationOptions<TResult, DefaultError, TVariables, TOnMutateResult>,
   "mutationKey" | "mutationFn"
 > & {
-  mutationKey?: QueryKey;
+  mutationKey?: MutationKey;
   appendMutationKey?: readonly unknown[];
   mapVariablesToArgs?: (variables: TVariables) => TArgs;
-  mutationFn?: (context: {
-    variables: TVariables;
-    args: TArgs;
-  }) => MaybePromise<TResult>;
-};
-
-type InfiniteOptionOverrides<
-  TArgs extends unknown[],
-  TResult,
-  TPageParam = unknown,
-> = Omit<
-  UseInfiniteQueryOptions<TResult, unknown, TResult, BaseQueryKey, TPageParam>,
-  "queryKey" | "queryFn"
-> & {
-  queryKey?: QueryKey;
-  appendQueryKey?: readonly unknown[];
-  args?: TArgs;
-  mapArgs?: (args: TArgs) => TArgs;
-  pageParamToArgs?: (pageParam: TPageParam, args: TArgs) => TArgs;
-  queryFn?: (
-    context: {
-      queryKey: BaseQueryKey;
-      signal: AbortSignal;
-      meta: Record<string, unknown> | undefined;
-      pageParam: TPageParam;
-      direction: unknown;
-      args: TArgs;
-    }
+  mutationFn?: (
+    context: MutationFunctionContext & { variables: TVariables; args: TArgs },
   ) => MaybePromise<TResult>;
 };
-
-interface QueryOptionFactory<TArgs extends unknown[], TResult> {
-  (...payload: TArgs): UseQueryOptions<TResult, unknown, TResult, BaseQueryKey>;
-  withOptions: (
-    overrides: QueryOptionOverrides<TArgs, TResult>,
-    ...payload: TArgs
-  ) => UseQueryOptions<TResult, unknown, TResult, BaseQueryKey>;
-}
-
-interface MutationOptionFactory<
-  TArgs extends unknown[],
-  TResult,
-  TVariables = MutationVariables<TArgs>,
-> {
-  (): UseMutationOptions<TResult, unknown, TVariables, unknown>;
-  withOptions: (
-    overrides?: MutationOptionOverrides<TArgs, TResult, TVariables>
-  ) => UseMutationOptions<TResult, unknown, TVariables, unknown>;
-}
-
-interface MutationOptionConfig<
-  TArgs extends unknown[],
-  TVariables = MutationVariables<TArgs>,
-> {
-  mapVariablesToArgs?: (variables: TVariables) => TArgs;
-}
-
-interface InfiniteOptionFactory<
-  TArgs extends unknown[],
-  TResult,
-  TPageParam = unknown,
-> {
-  (...payload: TArgs): UseInfiniteQueryOptions<TResult, unknown, TResult, BaseQueryKey, TPageParam>;
-  withOptions: (
-    overrides: InfiniteOptionOverrides<TArgs, TResult, TPageParam>,
-    ...payload: TArgs
-  ) => UseInfiniteQueryOptions<TResult, unknown, TResult, BaseQueryKey, TPageParam>;
-}
-
-type QueryOptionType = <T extends unknown[], J>(
-  key: readonly unknown[],
-  fn: AnyFn<T, J>
-) => QueryOptionFactory<T, J>;
-
-type MutationOptionType = <TArgs extends unknown[], TResult, TVariables = MutationVariables<TArgs>>(
-  key: readonly unknown[],
-  fn: AnyFn<TArgs, TResult>,
-  config?: MutationOptionConfig<TArgs, TVariables>
-) => MutationOptionFactory<TArgs, TResult, TVariables>;
-
-type InfiniteOptionType = <T extends unknown[], K>(
-  key: readonly unknown[],
-  fn: AnyFn<T, K>
-) => InfiniteOptionFactory<T, K>;
 
 function resolveArgs<TArgs extends unknown[]>(
   payload: TArgs,
-  overrides?: {
-    args?: TArgs;
-    mapArgs?: (args: TArgs) => TArgs;
-  }
+  overrides: ArgumentOptions<TArgs>,
 ) {
-  const baseArgs = overrides?.args ?? payload;
-  return overrides?.mapArgs ? overrides.mapArgs(baseArgs) : baseArgs;
+  const args = [...(overrides.args ?? payload)] as TArgs;
+  return overrides.mapArgs ? overrides.mapArgs(args) : args;
 }
-
 function resolveKey(
-  baseKey: readonly unknown[],
-  appendKey?: readonly unknown[],
-  overrideKey?: QueryKey
-): BaseQueryKey {
-  if (overrideKey) {
-    return [...overrideKey];
-  }
-
-  return [...baseKey, ...(appendKey ?? [])];
+  base: QueryKey,
+  args: unknown[],
+  append?: readonly unknown[],
+  override?: QueryKey,
+): QueryKey {
+  return override ?? ([...base, ...args, ...(append ?? [])] as QueryKey);
 }
 
-function toArgs<TArgs extends unknown[]>(
-  variables: MutationVariables<TArgs>
-): TArgs {
-  if (Array.isArray(variables)) {
-    return variables as TArgs;
-  }
-
-  if (typeof variables === "undefined") {
-    return [] as unknown as TArgs;
-  }
-
-  return [variables] as unknown as TArgs;
-}
-
-export const queryOption: QueryOptionType = <T extends unknown[], J>(
-  key: readonly unknown[],
-  fn: AnyFn<T, J>
-) => {
-  const buildOptions = (
-    payload: T,
-    overrides?: QueryOptionOverrides<T, J>
-  ): UseQueryOptions<J, unknown, J, BaseQueryKey> => {
+export function queryOption<TArgs extends unknown[], TResult>(
+  key: QueryKey,
+  fn: Api<TArgs, TResult>,
+) {
+  function build<TData = TResult>(
+    payload: TArgs,
+    overrides: QueryOptionOverrides<TArgs, TResult, TData> = {},
+  ): QueryResult<TResult, TData> {
     const args = resolveArgs(payload, overrides);
-    const queryKey = resolveKey([...key, ...args], overrides?.appendQueryKey, overrides?.queryKey);
-    const { appendQueryKey: _appendQueryKey, args: _args, mapArgs: _mapArgs, queryFn: overrideQueryFn, queryKey: _queryKey, ...restOverrides } =
-      overrides ?? {};
-
+    const {
+      queryKey: customKey,
+      appendQueryKey,
+      args: _args,
+      mapArgs: _mapArgs,
+      queryFn: customFn,
+      ...options
+    } = overrides;
+    const queryKey = resolveKey(
+      key,
+      ["query", args],
+      appendQueryKey,
+      customKey,
+    );
+    const queryFn = async (context: QueryFunctionContext) =>
+      customFn ? customFn({ ...context, args }) : fn(...args);
     return {
-      queryKey,
-      queryFn: (context) => {
-        if (overrideQueryFn) {
-          return Promise.resolve(
-            overrideQueryFn({
-              queryKey: context.queryKey,
-              signal: context.signal,
-              meta: context.meta,
-              args,
-            })
-          );
-        }
-
-        return Promise.resolve(fn(...args));
-      },
-      gcTime: Infinity,
-      refetchOnWindowFocus: false,
-      ...restOverrides,
+      ...queryOptions<TResult, DefaultError, TData>({
+        ...options,
+        queryKey,
+        queryFn,
+      }),
+      queryFn,
     };
-  };
-
-  const factory = ((...payload: T) => buildOptions(payload)) as QueryOptionFactory<T, J>;
-  factory.withOptions = (overrides, ...payload) => buildOptions(payload, overrides);
-
+  }
+  const factory = (...payload: TArgs) => build(payload);
+  function withOptions<TData = TResult>(
+    overrides: QueryOptionOverrides<TArgs, TResult, TData> & {
+      initialData: InitialValue<TResult>;
+    },
+    ...payload: TArgs
+  ): DefinedQueryResult<TResult, TData>;
+  function withOptions<TData = TResult>(
+    overrides: QueryOptionOverrides<TArgs, TResult, TData>,
+    ...payload: TArgs
+  ): QueryResult<TResult, TData>;
+  function withOptions<TData = TResult>(
+    overrides: QueryOptionOverrides<TArgs, TResult, TData>,
+    ...payload: TArgs
+  ): QueryResult<TResult, TData> {
+    return build(payload, overrides);
+  }
+  factory.withOptions = withOptions;
   return factory;
-};
+}
 
-export const mutationOption: MutationOptionType = <
+export function mutationOption<
   TArgs extends unknown[],
   TResult,
   TVariables = MutationVariables<TArgs>,
 >(
-  key: readonly unknown[],
-  fn: AnyFn<TArgs, TResult>,
-  config?: MutationOptionConfig<TArgs, TVariables>
-) => {
-  const buildOptions = (
-    overrides?: MutationOptionOverrides<TArgs, TResult, TVariables>
-  ): UseMutationOptions<TResult, unknown, TVariables, unknown> => {
+  key: MutationKey,
+  fn: Api<TArgs, TResult>,
+  ...configuration: TArgs extends [unknown?]
+    ? [config?: MutationOptionConfig<TArgs, TVariables>]
+    : [config: MutationOptionConfig<TArgs, TVariables>]
+) {
+  const config = configuration[0] as
+    | MutationOptionConfig<TArgs, TVariables>
+    | undefined;
+  function build<TOnMutateResult = unknown>(
+    overrides: MutationOptionOverrides<
+      TArgs,
+      TResult,
+      TVariables,
+      TOnMutateResult
+    > = {},
+  ): MutationResult<TResult, TVariables, TOnMutateResult> {
     const {
-      appendMutationKey: _appendMutationKey,
-      mutationKey: overrideMutationKey,
+      mutationKey,
+      appendMutationKey,
       mapVariablesToArgs,
-      mutationFn: overrideMutationFn,
-      ...restOverrides
-    } = overrides ?? {};
-
-    return {
-      mutationKey: resolveKey(key, _appendMutationKey, overrideMutationKey),
-      mutationFn: (variables) => {
-        const args = mapVariablesToArgs
-          ? mapVariablesToArgs(variables)
-          : config?.mapVariablesToArgs
-            ? config.mapVariablesToArgs(variables)
-            : toArgs<TArgs>(variables as MutationVariables<TArgs>);
-
-        if (overrideMutationFn) {
-          return Promise.resolve(overrideMutationFn({ variables, args }));
-        }
-
-        return Promise.resolve(fn(...args));
-      },
-      ...restOverrides,
+      mutationFn: customFn,
+      ...options
+    } = overrides;
+    const mapper = mapVariablesToArgs ?? config?.mapVariablesToArgs;
+    const mutationFn = async (
+      variables: TVariables,
+      context: MutationFunctionContext,
+    ) => {
+      // Array payloads are single arguments unless tuple mode is explicitly selected.
+      const args: TArgs = mapper
+        ? mapper(variables)
+        : config?.variablesMode === "tuple"
+          ? (variables as unknown as TArgs)
+          : ((variables === undefined ? [] : [variables]) as TArgs);
+      if (!Array.isArray(args))
+        throw new TypeError("Mutation argument mapping must return an array.");
+      return customFn ? customFn({ ...context, variables, args }) : fn(...args);
     };
-  };
-
-  const factory = (() => buildOptions()) as MutationOptionFactory<
-    TArgs,
-    TResult,
-    TVariables
-  >;
-  factory.withOptions = (overrides) => buildOptions(overrides);
-
+    return {
+      ...mutationOptions<TResult, DefaultError, TVariables, TOnMutateResult>({
+        ...options,
+        mutationKey:
+          mutationKey ??
+          ([...key, ...(appendMutationKey ?? [])] as MutationKey),
+        mutationFn,
+      }),
+      mutationFn,
+    };
+  }
+  const factory = () => build();
+  factory.withOptions = build;
   return factory;
-};
+}
 
-export const infiniteOption: InfiniteOptionType = <T extends unknown[], K>(
-  key: readonly unknown[],
-  fn: AnyFn<T, K>
-) => {
-  const buildOptions = <TPageParam = unknown>(
-    payload: T,
-    overrides?: InfiniteOptionOverrides<T, K, TPageParam>
-  ): UseInfiniteQueryOptions<K, unknown, K, BaseQueryKey, TPageParam> => {
+export function infiniteOption<TArgs extends unknown[], TResult>(
+  key: QueryKey,
+  fn: Api<TArgs, TResult>,
+) {
+  function build<TPageParam, TData = InfiniteData<TResult, TPageParam>>(
+    payload: TArgs,
+    overrides: InfiniteOptionOverrides<TArgs, TResult, TPageParam, TData>,
+  ): InfiniteResult<TResult, TPageParam, TData> {
     const args = resolveArgs(payload, overrides);
-    const queryKey = resolveKey([...key, ...args], overrides?.appendQueryKey, overrides?.queryKey);
-    const { appendQueryKey: _appendQueryKey, args: _args, mapArgs: _mapArgs, pageParamToArgs, queryFn: overrideQueryFn, queryKey: _queryKey, ...restOverrides } =
-      overrides ?? {};
-
-    return {
-      queryKey,
-      queryFn: (context) => {
-        if (overrideQueryFn) {
-          return Promise.resolve(
-            overrideQueryFn({
-              queryKey: context.queryKey,
-              signal: context.signal,
-              meta: context.meta,
-              pageParam: context.pageParam as TPageParam,
-              direction: context.direction,
-              args,
-            })
-          );
-        }
-
-        const resolvedArgs = pageParamToArgs
-          ? pageParamToArgs(context.pageParam as TPageParam, args)
-          : args;
-
-        return Promise.resolve(fn(...resolvedArgs));
-      },
-      getNextPageParam: () => undefined,
-      initialPageParam: undefined as TPageParam,
-      staleTime: Infinity,
-      refetchOnWindowFocus: false,
-      ...restOverrides,
+    const {
+      queryKey: customKey,
+      appendQueryKey,
+      args: _args,
+      mapArgs: _mapArgs,
+      pageParamToArgs,
+      queryFn: customFn,
+      ...options
+    } = overrides;
+    const queryKey = resolveKey(
+      key,
+      ["infinite", args],
+      appendQueryKey,
+      customKey,
+    );
+    const queryFn = async (
+      context: QueryFunctionContext<QueryKey, TPageParam>,
+    ) => {
+      if (customFn) return customFn({ ...context, args });
+      return fn(
+        ...(pageParamToArgs
+          ? pageParamToArgs(context.pageParam as TPageParam, [...args] as TArgs)
+          : args),
+      );
     };
-  };
-
-  const factory = ((...payload: T) => buildOptions(payload)) as InfiniteOptionFactory<T, K>;
-  factory.withOptions = (overrides, ...payload) => buildOptions(payload, overrides);
-
+    return {
+      ...infiniteQueryOptions<
+        TResult,
+        DefaultError,
+        TData,
+        QueryKey,
+        TPageParam
+      >({ ...options, queryKey, queryFn }),
+      queryFn,
+    };
+  }
+  const factory = (...payload: TArgs) =>
+    build(payload, {
+      initialPageParam: undefined,
+      getNextPageParam: () => undefined,
+    });
+  factory.withOptions = <TPageParam, TData = InfiniteData<TResult, TPageParam>>(
+    overrides: InfiniteOptionOverrides<TArgs, TResult, TPageParam, TData>,
+    ...payload: TArgs
+  ) => build(payload, overrides);
   return factory;
-};
+}

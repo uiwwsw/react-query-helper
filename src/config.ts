@@ -1,5 +1,5 @@
-import type { AnalyzerConfig } from "./core/analyzer";
-import type { TemplateConfig } from "./core/generator";
+import type { AnalyzerConfig } from "./core/analyzer.js";
+import type { TemplateConfig } from "./core/generator.js";
 
 export interface AutoQueryConfig {
   sourceDir: string;

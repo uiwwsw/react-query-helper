@@ -1,400 +1,333 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/logo.svg" alt="React Query Helper Logo" width="160" />
+  <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/logo.svg" alt="React Query Helper" width="120" />
 </p>
 
-<h1 align="center">React Query Helper</h1>
+# React Query Helper
 
-<p align="center">
-  <strong>🇺🇸 English</strong> · <a href="README.md">🇰🇷 한국어</a>
-</p>
+Generate **TanStack Query v5 option factories** from TypeScript API functions.
+Use the results with `useQuery`, `useSuspenseQuery`, `useMutation`, `useInfiniteQuery`,
+and QueryClient fetch/prefetch APIs. This package generates options, not React hooks.
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/v/@uiwwsw/react-query-helper.svg?color=2563eb" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/dm/@uiwwsw/react-query-helper.svg?color=9333ea" alt="npm downloads" /></a>
-  <a href="https://bundlephobia.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/bundlephobia/minzip/@uiwwsw/react-query-helper.svg?color=10b981" alt="bundle size" /></a>
-  <a href="https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981.svg" alt="license" /></a>
-  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/types/@uiwwsw/react-query-helper.svg?color=3178c6" alt="types" /></a>
-</p>
-<p align="center">
-  <a href="https://github.com/uiwwsw/react-query-helper"><img src="https://img.shields.io/github/stars/uiwwsw/react-query-helper?style=social" alt="github stars" /></a>
-</p>
-<p align="center">
-  <img src="https://img.shields.io/badge/Node.js-%3E%3D18.0-000000.svg?logo=node.js" alt="node version" />
-  <img src="https://img.shields.io/badge/Bun-ready-f97316.svg?logo=bun" alt="bun ready" />
-</p>
+[한국어](README.md) · [npm](https://www.npmjs.com/package/@uiwwsw/react-query-helper) · [Changelog](CHANGELOG.md)
 
-> React Query Helper automates the creation of React Query hooks and option objects from your TypeScript API functions. Configure it once and keep your data-fetching layer consistent across your entire project.
+## Requirements
 
-By default, only exported functions in each file are analyzed for generation.
-
----
-
-## Table of Contents
-
-- [Why React Query Helper](#why-react-query-helper)
-- [Quick Start](#quick-start)
-  - [Installation](#installation)
-  - [Generate the Configuration File](#generate-the-configuration-file)
-  - [Run the Generator](#run-the-generator)
-- [CLI Commands](#cli-commands)
-- [Configuration Options](#configuration-options)
-- [Sample Output](#sample-output)
-- [Custom Helper Imports](#custom-helper-imports)
-- [Best Practices](#best-practices)
-- [Star History](#star-history)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Why React Query Helper
-
-- **Configuration-driven automation** – Define everything once in `rqh.config.ts` and let the CLI handle the rest.
-- **Built-in initialization** – Run `react-query-helper --init` to generate a starter config file instantly.
-- **Runtime/dev separation** – generate/watch/config loading stay dev-only, and the runtime helper entry used by generated files stays free of Node-only modules like `fs`.
-- **Watch & Generate modes** – Use `--watch` during development for live updates or `--generate` for bootstrapping and regeneration.
-- **Consistent query options** – Centralize caching, retry, and error handling via `queryOption`, `mutationOption`, and `infiniteOption` utilities.
-- **Runtime overrides** – Use `.withOptions(...)` on generated factories to adjust headers, query keys, page-param mapping, or mutation variable shaping without rewriting the generated file.
-- **Prettier integration** – All emitted files are formatted automatically to minimize noisy diffs.
-- **Custom helper imports** – Use `templateDir` to change where generated files import `queryOption`, `mutationOption`, and `infiniteOption` from.
-- **Smart artifact inference** – By default the generator infers whether a function should emit query, mutation, or infinite helpers, so `createUserQueryOption` is no longer emitted unless you explicitly opt in.
-- **Conservative infinite defaults** – `infiniteOption` ships with a safe baseline and expects callers to override pagination-specific `pageParam` behavior.
+- Node.js 22+ for the CLI/build; CI tests Node 22 and 24.
+- React 18/19 and `@tanstack/react-query >=5.102.8 <6`.
+- TypeScript 5.8+ and a bundler capable of handling generated TypeScript.
+- The root entry is browser-safe. Node-only tools live under `/core/analyzer` and `/core/generator`.
+- Bun can install this package in an application. Repository builds and CI use npm.
 
 ## Quick Start
 
-### Installation
+Install as a runtime dependency: generated files import the helpers.
+Skip React/TanStack installation if your application already has them.
 
-```bash
-bun add @uiwwsw/react-query-helper
-# or
-yarn add --dev @uiwwsw/react-query-helper
-# or
-npm install --save-dev @uiwwsw/react-query-helper
+```sh
+npm install @uiwwsw/react-query-helper @tanstack/react-query react
+npx @uiwwsw/react-query-helper init
 ```
 
-### Generate the Configuration File
-
-Generate `rqh.config.ts` in your project root with:
-
-```bash
-npx @uiwwsw/react-query-helper --init
-# or
-bunx @uiwwsw/react-query-helper --init
-```
-
-If the package is already installed in your project, you can also run:
-
-```bash
-npx react-query-helper --init
-# or
-npm exec react-query-helper -- --init
-```
-
-The generated file looks like this:
+The starter config needs no nonexistent plugin files or project-specific aliases:
 
 ```ts
 // rqh.config.ts
 import type { AutoQueryConfig } from "@uiwwsw/react-query-helper/config";
 
-const config: AutoQueryConfig = {
-  sourceDir: "./libs",        // Where your API functions live
-  outputDir: "./src/options", // Where generated hooks are stored
-  ignoredFiles: ["domain.ts", "adaptor.ts"],
-  templateDir: "@uiwwsw/react-query-helper",
-  sourceImportAlias: "@/libs",
-  analyzer: {
-    exportFilter: "exported-only",
-    functionMatchMode: "all",
-    includeNames: [],
-    excludeNames: [],
-  },
-  template: {
-    enabledArtifacts: ["query", "mutation", "infinite"],
-    artifactStrategy: "smart",
-    keyStyle: "path",
-  },
-};
-
-export default config;
+export default {
+  sourceDir: "./libs",
+  outputDir: "./src/options",
+  ignoredFiles: ["domain.ts", "adaptor.ts", "**/*.test.ts", "**/*.spec.ts"],
+  template: { artifactStrategy: "smart" },
+} satisfies AutoQueryConfig;
 ```
 
-### Run the Generator
+```ts
+// libs/users/api.ts
+export const getUser = async (id: string) => ({ id, name: "Ada" });
 
-Add scripts to `package.json` for a consistent workflow.
+export const updateUser = async (id: string, body?: { name: string }) => ({
+  id,
+  name: body?.name ?? "Ada",
+});
+```
 
-```jsonc
-// package.json
+```sh
+npx @uiwwsw/react-query-helper generate
+```
+
+The output `src/options/users/apiOptions.ts` exports `getUserKey`,
+`getUserQueryOption`, `getUserInfiniteQueryOption`, `updateUserKey`,
+`updateUserMutationVariables`, and `updateUserMutationOption`. Do not hand-edit generated files.
+
+```tsx
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getUserKey,
+  getUserQueryOption,
+  updateUserMutationOption,
+} from "./options/users/apiOptions";
+
+export function User({ id }: { id: string }) {
+  const client = useQueryClient();
+  const user = useQuery(
+    getUserQueryOption.withOptions(
+      {
+        staleTime: 60_000,
+        select: (data) => data.name,
+      },
+      id,
+    ),
+  );
+  const update = useMutation(
+    updateUserMutationOption.withOptions({
+      onSuccess: () => client.invalidateQueries({ queryKey: getUserKey }),
+    }),
+  );
+  return (
+    <button onClick={() => update.mutate({ id, body: { name: "Grace" } })}>
+      {user.data ?? "Loading"}
+    </button>
+  );
+}
+```
+
+Wrap your app in `QueryClientProvider`. Helpers use the official options helpers and
+data tags, so `client.getQueryData(getUserQueryOption(id).queryKey)` infers the API result.
+
+## CLI
+
+| Command                          | Behavior                                                                                |
+| -------------------------------- | --------------------------------------------------------------------------------------- |
+| `init`                           | Create a starter config in the current directory without overwriting an existing config |
+| `generate`                       | Analyze all sources, update changed outputs, remove stale files owned by this generator |
+| `generate --check`               | Read-only freshness check; exits 1 for missing, changed, or stale output                |
+| `watch`                          | Generate initially, then watch source, config, and explicitly configured local plugins  |
+| `--config ./tools/rqh.config.ts` | Use an explicit config path; directories resolve relative to that config                |
+| `help`                           | Display usage                                                                           |
+
+The `--init`, `--generate`, `--watch`, and `--help` aliases remain supported.
+Invalid arguments/config/plugins/sources and generation failures exit 1.
+During watch, a failed pass preserves previous output and retries on the next save.
+
+```json
 {
   "scripts": {
-    "init:rqh": "react-query-helper --init",
-    "watch": "react-query-helper --watch",
-    "generate": "react-query-helper --generate"
+    "query:generate": "react-query-helper generate",
+    "query:watch": "react-query-helper watch",
+    "query:check": "react-query-helper generate --check"
   }
 }
 ```
 
-```bash
-bun run watch      # watch mode for live development
-bun run generate   # batch generation for every API file
-# or
-npm exec react-query-helper -- --generate
-```
+## Configuration
 
-## CLI Commands
+Config extensions: `rqh.config.ts/mts/cts/js/mjs/cjs`. Discovery searches upward from
+the current directory; multiple candidates in the nearest config directory are an error.
+An invalid or explicitly missing config never falls back silently. With no config at all,
+the default is `./libs → ./src/options`.
 
-| Command | Description |
-| --- | --- |
-| `react-query-helper --init` | Creates a default `rqh.config.ts` file in the project root without overwriting an existing config. |
-| `react-query-helper --watch` | Watches `sourceDir` and regenerates hooks whenever files change. |
-| `react-query-helper --generate` | Parses every API file in `sourceDir` and generates hooks in one shot. |
-| `react-query-helper --help` | Displays the available options and usage details. |
+TypeScript config/plugin imports are loaded using Jiti. Use default exports for ESM and
+`module.exports` for CommonJS. Config and plugin modules execute as development code:
+only load modules you trust.
 
-## Configuration Options
+| Option               | Default / purpose                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------------------- |
+| `sourceDir`          | `./libs`; must exist                                                                           |
+| `outputDir`          | `./src/options`; must not equal or contain sourceDir                                           |
+| `ignoredFiles`       | `["domain.ts", "adaptor.ts"]`; basename or glob, including root matches for `**/*.spec.ts`     |
+| `sourceImportAlias`  | Relative imports by default; aliases such as `@/api` also require app/bundler configuration    |
+| `templateDir`        | Helper import module/path, default `@uiwwsw/react-query-helper`; not an EJS template directory |
+| `analyzer`           | Export, async-keyword, and name filters                                                        |
+| `template`           | Artifact selection, per-function rules, naming and key style                                   |
+| `customAnalyzerPath` | File/package exporting `analyzeFile(filePath, config)`                                         |
+| `customTemplatePath` | File/package exporting `generateOptionsCode(params)`                                           |
 
-| Option | Required | Description |
-| --- | --- | --- |
-| `sourceDir` | ✅ | TypeScript directory containing your API functions (relative to the project root). |
-| `outputDir` | ✅ | Destination directory for generated hooks and option objects. |
-| `ignoredFiles` | ❌ | Array of file/path patterns to exclude from generation (`domain.ts`, `**/*.spec.ts`, `admin/internal/**`). |
-| `templateDir` | ❌ | Module path or relative directory used for importing `queryOption`, `mutationOption`, and `infiniteOption`. |
-| `sourceImportAlias` | ❌ | Prefix used to generate API imports via a path alias instead of relative paths, for example `@/apis`. |
-| `analyzer` | ❌ | Filters which functions are analyzed (`exported-only`, `async-only`, include/exclude lists, etc.). |
-| `template` | ❌ | Controls which artifacts are generated and how they are named. |
+The init template also ignores test/spec files. Declaration files, node_modules, .git,
+and outputDir are excluded. Nested output directories do not recursively generate themselves.
+Source symlinks are not followed; symlinks inside generated destinations are rejected.
 
-## Smart Artifact Strategy
+## Generation Rules
 
-The default `artifactStrategy: "smart"` infers artifacts from function names.
+The analyzer reads top-level declarations, arrow functions, and function expressions in
+`.ts/.tsx` files. It supports default exports, local `export { fn as alias }`, overload
+implementations, and `as`/`satisfies` wrappers. Private and ambient declarations are excluded by default.
 
-- `getUsers`, `fetchPost`, `listComments` → `query` + `infinite`
-- `createUser`, `updateProfile`, `deleteComment` → `mutation`
-- ambiguous names → `query` + `mutation` (but not `infinite`)
+Smart generation is a **name heuristic**, not HTTP or semantic analysis.
 
-If you want the previous behavior, set `artifactStrategy: "all"`.
-
-## Infinite Query Defaults
-
-Because pagination rules vary by API, `infiniteOption` does not merge `pageParam` into your request automatically.
-
-Override `queryFn`, `getNextPageParam`, and `initialPageParam` in the consuming code when you need custom infinite-query behavior.
+| Function prefix                                                   | Artifacts        |
+| ----------------------------------------------------------------- | ---------------- |
+| `getUser`, `listUsers`, `fetchItems` and other read prefixes      | query + infinite |
+| `createUser`, `updateUser`, `deleteUser` and other write prefixes | mutation         |
+| Unclassified names                                                | query + mutation |
 
 ```ts
-const usersInfinite = {
-  ...getUsersInfiniteQueryOption({ page: 1 }),
-  initialPageParam: 1,
-  queryFn: ({ pageParam }) => getUsers({ page: pageParam }),
-  getNextPageParam: (lastPage) => lastPage.nextPage,
-};
-```
+import type { AutoQueryConfig } from "@uiwwsw/react-query-helper/config";
 
-For more advanced cases, `.withOptions(...)` lets you centralize header injection and page-param mapping.
-
-```ts
-const usersInfinite = getUsersInfiniteQueryOption.withOptions(
-  {
-    initialPageParam: 1,
-    pageParamToArgs: (pageParam, [params]) => [{
-      ...params,
-      page: pageParam,
-      headers: {
-        ...params.headers,
-        Authorization: `Bearer ${token}`,
-      },
-    }],
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+export default {
+  sourceDir: "./libs",
+  outputDir: "./src/options",
+  template: {
+    enabledArtifacts: ["query", "mutation", "infinite"],
+    artifactsByName: { getUser: ["query"], listUsers: ["infinite"] },
+    artifactStrategy: "smart", // "all" generates every enabled artifact
+    keyStyle: "path",
   },
-  { page: 1, headers: {} }
+  analyzer: {
+    exportFilter: "exported-only",
+    functionMatchMode: "all", // async-only/sync-only inspect the async keyword
+    excludeNames: ["debugHelper"],
+  },
+} satisfies AutoQueryConfig;
+```
+
+`enabledArtifacts: []` disables generation. Filters use exported names.
+`importNames` and `outputNames` customize helper identifiers and output suffixes.
+Invalid or conflicting generated identifiers fail explicitly.
+
+Default prefixes include all source-relative directories, the filename, and the function.
+For `users/api.ts#getUser`, the prefix is `["users", "api", "getUser"]`.
+Query keys are `[...prefix, "query", args]`; infinite keys are
+`[...prefix, "infinite", args]`; mutations use the prefix. `file-only` and
+`function-only` reduce namespacing and can collide across files.
+
+## Runtime Options
+
+Query/infinite factories expose `.withOptions(options, ...args)`; mutation factories expose
+`.withOptions(options)`. TanStack options including `select`, `enabled`,
+`staleTime: "static"`, `meta`, `scope`, `networkMode`, and `onMutate` pass through.
+Optimistic rollback types are preserved.
+
+Helpers do not force infinite cache lifetime or disable focus refetching.
+Configure these policies using QueryClient defaults or per-call overrides.
+
+Cancellation requires forwarding the provided signal to your actual API request.
+The wrapper does not guess where to insert an AbortSignal into arbitrary function arguments.
+Overrides receive the TanStack context, including client and meta.
+
+```ts
+import { queryOption } from "@uiwwsw/react-query-helper";
+
+const getUser = (id: string, signal?: AbortSignal) =>
+  fetch("/api/users/" + id, { signal }).then((r) => {
+    if (!r.ok) throw new Error("Request failed");
+    return r.json() as Promise<{ id: string; name: string }>;
+  });
+
+const userOptions = queryOption(["user"], getUser);
+const options = userOptions.withOptions(
+  {
+    queryFn: ({ args: [id], signal }) => getUser(id, signal),
+  },
+  "u1",
 );
 ```
 
-Mutations now keep the common calling style naturally aligned with the API signature.
+Arguments changed through `args`/`mapArgs` also affect the key. Use serializable arguments
+and keep tokens/authorization headers out of cache keys. Inject secrets inside queryFn,
+or provide a safe explicit key containing a stable user/tenant identifier.
+A full `queryKey` override replaces automatic namespacing too: keep query/infinite keys separate.
 
-- single-argument API → `mutate(body)` / `mutateAsync(body)`
-- multi-argument API → generated object payload type, so `mutate({ body, headers })` / `mutateAsync({ body, headers })`
-
-If you need a custom mapping, `withOptions(...)` can still reshape the variables.
-
-```ts
-const updateUserMutation = updateUserMutationOption.withOptions({
-  mapVariablesToArgs: ({ id, body }) => [
-    id,
-    body,
-    { Authorization: `Bearer ${token}` },
-  ],
-});
-```
-
-When an API function accepts multiple arguments, the generator can emit an object payload type that fits both `mutate` and `mutateAsync` naturally.
+Single array mutation arguments stay arrays. Generated multi-argument factories accept
+named objects and preserve optional properties. Destructuring/rest forms use tuples.
+Direct multi-argument helpers require an explicit mapper or tuple mode:
 
 ```ts
-export type createUserMutationVariables = {
-  body: Parameters<typeof createUser>[0];
-  headers: Parameters<typeof createUser>[1];
-};
+import { mutationOption } from "@uiwwsw/react-query-helper";
 
-export const createUserMutationOption = mutationOption<
-  Parameters<typeof createUser>,
-  Awaited<ReturnType<typeof createUser>>,
-  createUserMutationVariables
->(createUserKey, createUser, {
-  mapVariablesToArgs: (variables) => [variables.body, variables.headers],
-});
-
-mutate({
-  body: { name: "matthew" },
-  headers: { Authorization: `Bearer ${token}` },
-});
-
-await mutateAsync({
-  body: { name: "matthew" },
-  headers: { Authorization: `Bearer ${token}` },
-});
+const saveMany = mutationOption(["saveMany"], (ids: string[]) => ids.length);
+const update = mutationOption(
+  ["update"],
+  (id: string, name: string) => ({ id, name }),
+  { variablesMode: "tuple" },
+);
+// useMutation(saveMany()).mutate(["u1", "u2"])
+// useMutation(update()).mutate(["u1", "Ada"])
 ```
 
-## Release Flow
+## Infinite Queries
 
-GitHub Actions now publishes to npm only on `v*` tag pushes or manual workflow runs instead of every push to `main`.
-
-Example:
-
-```bash
-git tag v1.0.3
-git push origin v1.0.3
-```
-
-## Sample Output
+Configure `initialPageParam`, `getNextPageParam`, and argument mapping for your API.
+The data type is `InfiniteData<Page, PageParam>`, with inferred select results.
+Calling the base factory without overrides fetches one page and stops.
 
 ```ts
-// libs/users/api.ts
-export const getUser = async (id: string) => {
-  return { id, name: `User ${id}` };
-};
+import { infiniteOption } from "@uiwwsw/react-query-helper";
 
-export const createUser = async (
-  body: { name: string },
-  headers?: Record<string, string>
-) => {
-  return { id: Date.now().toString(), name: body.name, headers };
-};
-```
-
-```ts
-// src/options/users/apiOptions.ts (auto-generated)
-import { createUser, getUser } from "../../../libs/users/api";
-import {
-  infiniteOption,
-  mutationOption,
-  queryOption,
-} from "@uiwwsw/react-query-helper";
-
-export const getUserKey = ["users", "getUser"] as const;
-export const getUserQueryOption = queryOption(getUserKey, getUser);
-export const getUserInfiniteQueryOption = infiniteOption(getUserKey, getUser);
-
-export const createUserKey = ["users", "createUser"] as const;
-export type createUserMutationVariables = {
-  body: Parameters<typeof createUser>[0];
-  headers: Parameters<typeof createUser>[1];
-};
-
-export const createUserMutationOption = mutationOption<
-  Parameters<typeof createUser>,
-  Awaited<ReturnType<typeof createUser>>,
-  createUserMutationVariables
->(createUserKey, createUser, {
-  mapVariablesToArgs: (variables) => [variables.body, variables.headers],
+const listUsers = async (params: { page: number }) => ({
+  items: [{ id: String(params.page) }],
+  nextPage: params.page < 3 ? params.page + 1 : undefined,
 });
-```
+const listOptions = infiniteOption(["users"], listUsers);
 
-## Custom Helper Imports
-
-Point `templateDir` to your shared helper module if you want generated files to import from somewhere other than the package default.
-
-You can also shape generation around your team's conventions with `template` and `analyzer`.
-
-```ts
-const config: AutoQueryConfig = {
-  sourceDir: "./libs",
-  outputDir: "./src/options",
-  analyzer: {
-    functionMatchMode: "async-only",
-    excludeNames: ["debugHelper"],
+const options = listOptions.withOptions(
+  {
+    initialPageParam: 0,
+    pageParamToArgs: (page, [params]) => [{ ...params, page }],
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    maxPages: 3,
   },
-  template: {
-    enabledArtifacts: ["query"],
-    keyStyle: "function-only",
-    outputNames: {
-      query: "CustomQueryOption",
-    },
-  },
-};
+  { page: 0 },
+);
+// useInfiniteQuery(options).data?.pages
 ```
 
-For deeper customization, you can point the config at external modules.
+Return undefined or null when pagination ends; zero is a valid cursor.
+For bidirectional pagination with maxPages, configure getPreviousPageParam too.
 
-```ts
-const config: AutoQueryConfig = {
-  sourceDir: "./libs",
-  outputDir: "./src/options",
-  customAnalyzerPath: "./rqh.analyzer.mjs",
-  customTemplatePath: "./rqh.template.mjs",
-};
+## Scope and Extensions
+
+- Re-export barrels, class/object methods, and higher-order factory results are not analyzed by default.
+- Generic/overload syntax can be read, but the factory does not preserve every call-dependent generic relationship or overload. Use concrete API wrappers or a custom template.
+- `exportFilter: "all"` is for custom analysis/templates. The built-in generator rejects private imports.
+- Watch covers sources, the config file, and directly configured local plugins. Restart after changing imported external config dependencies, packages, or adding the first config file.
+- Generated TS uses extensionless bundler imports and shortens index imports to directories. Generated files are not intended for direct Node ESM execution.
+- Writes are atomic per file, not a directory-wide transaction. Analysis/collision failures are checked before writes; existing output is preserved on these failures.
+
+A custom analyzer returns objects with name, parameters, isAsync, and isExported;
+optional metadata includes importName, optionalParameters, and restParameterIndex.
+A custom template receives functionInfos, importPath, keySegments (directories only),
+fileName, templateImportPath, and config, and must return a string.
+
+## Migrating from 1.x
+
+1. Upgrade to Node 22+ and TanStack Query 5.102.8+, then install version 2.x.
+2. Move old generated files aside and regenerate. Version 2 refuses to overwrite files without its ownership marker.
+3. Update manually constructed keys and clear persisted caches or bump the persistence buster.
+4. Set explicit QueryClient defaults if infinite cache lifetime or disabled focus refetching is desired.
+5. Add an argument mapper or `variablesMode: "tuple"` to direct multi-argument mutations. Single arrays no longer spread.
+6. Regenerate and typecheck your application.
+
+## Development and Releases
+
+```sh
+npm ci
+npm test
+npm run smoke
 ```
 
-- `customAnalyzerPath`: returns your own function metadata list
-- `customTemplatePath`: returns the final generated code string
+Tests cover runtime behavior, emitted TypeScript, config formats, exit failures, watch,
+a real tarball install, browser bundling and NodeNext types. package-lock.json is authoritative;
+the stale Bun lockfile was removed.
 
-Example `rqh.analyzer.mjs`:
+Main pushes and pull requests run CI. Publishing requires a vX.Y.Z tag matching package.json,
+including manual runs on a tag. Publishing runs validation, tests, and consumer-package checks first.
 
-```js
-export function analyzeFile(filePath, config) {
-  return [
-    {
-      name: "getUser",
-      parameters: ["params"],
-      isAsync: true,
-      isExported: true,
-    },
-  ];
-}
+```sh
+npm version major  # choose major/minor/patch for the actual release
+git push origin main --follow-tags
 ```
 
-Example `rqh.template.mjs`:
+The repository NPM_TOKEN must be a valid token with publishing permission. Alternatively,
+configure the npm trusted publisher for this workflow to use OIDC. Releases include provenance.
+Already published versions cannot be overwritten; changes require a new version.
 
-```js
-export function generateOptionsCode({ functionInfos, importPath }) {
-  const names = functionInfos.map((info) => info.name).join(", ");
-  return `import { ${names} } from "${importPath}";\nexport const customGenerated = true;\n`;
-}
-```
+## Official References
 
-Use the built-in analyzer when you only need filtering and naming tweaks.
-Use `customAnalyzerPath` when your project uses wrapped functions, factories, higher-order patterns, or team-specific generic conventions that do not map cleanly to the built-in AST rules.
+- [Query Options and inference](https://tanstack.com/query/latest/docs/framework/react/guides/query-options)
+- [Infinite Queries](https://tanstack.com/query/latest/docs/framework/react/guides/infinite-queries)
+- [Query Cancellation](https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation)
+- [Important Defaults](https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults)
+- [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/)
 
-That means you can now treat the package as a base engine and layer your own team-specific generator behavior on top.
-
-```ts
-const config: AutoQueryConfig = {
-  sourceDir: "./libs",
-  outputDir: "./src/options",
-  templateDir: "./src/query-helpers",
-};
-```
-
-For example, generated files will import from that path instead of `@uiwwsw/react-query-helper`.
-
-## Best Practices
-
-- Keep a 1:1 relationship between API functions and generated hooks to simplify cache-key reasoning.
-- Commit generated files so your CI/CD pipeline doesn’t need to rebuild them during deployment.
-- Define shared behavior (e.g., `staleTime`, `retry`, `refetchOnWindowFocus`) in the helper utilities for consistent usage.
-- When using watch mode, align your editor’s save formatter with Prettier to avoid conflicting edits.
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=uiwwsw/react-query-helper&type=Date)](https://star-history.com/#uiwwsw/react-query-helper&Date)
-
-## Contributing
-
-We welcome bug reports, feature suggestions, and documentation improvements. Open an issue or submit a pull request to get involved.
-
-## License
-
-Distributed under the [MIT License](LICENSE).
+[MIT License](LICENSE)
