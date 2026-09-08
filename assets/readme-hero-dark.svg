@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="336" viewBox="0 0 1120 336" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">React Query Helper: Your API. Query-ready.</title>
+  <desc id="desc">The Q symbol beside a two-line headline, with three option blocks connected to one input. Dark theme.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1120" y2="336" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#112D28"/>
+      <stop offset="1" stop-color="#193B32"/>
+    </linearGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#8BB5A0" opacity=".2"/>
+    </pattern>
+  </defs>
+  <rect width="1120" height="336" rx="24" fill="url(#paper)"/>
+  <rect x="770" y="28" width="322" height="280" rx="16" fill="url(#grid)"/>
+  <path d="M840 0V336" stroke="#365247" stroke-dasharray="4 7"/>
+  <g transform="translate(64 76) scale(.71875)">
+    <rect width="256" height="256" rx="60" fill="#133C35"/>
+    <path d="M155 62A67 67 0 1 0 183 146" stroke="#B9E8CC" stroke-width="27" stroke-linecap="round"/>
+    <path d="M139 139L202 202" stroke="#FAF7EE" stroke-width="27" stroke-linecap="round"/>
+    <rect x="177" y="65" width="29" height="29" rx="8" fill="#F38466"/>
+  </g>
+  <g font-family="'Avenir Next', Avenir, 'Trebuchet MS', sans-serif">
+    <text x="294" y="78" fill="#AAC7B8" font-size="14" font-weight="600" letter-spacing="3">REACT QUERY HELPER</text>
+    <text x="290" y="157" fill="#FAF7EE" font-size="72" font-weight="700" letter-spacing="-3">Your API.</text>
+    <text x="290" y="235" fill="#FAF7EE" font-size="72" font-weight="700" letter-spacing="-3">Query-ready.</text>
+    <text x="294" y="279" fill="#AAC7B8" font-size="18">TypeScript in. Reusable options out.</text>
+  </g>
+  <path d="M868 168H900M900 100V236M900 100H930M900 168H930M900 236H930" stroke="#365247" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="868" cy="168" r="6" fill="#B9E8CC"/>
+  <rect x="930" y="78" width="126" height="44" rx="12" fill="#20493E"/>
+  <rect x="930" y="146" width="126" height="44" rx="12" fill="#20493E"/>
+  <rect x="930" y="214" width="126" height="44" rx="12" fill="#20493E"/>
+  <rect x="947" y="93" width="14" height="14" rx="4" fill="#71B592"/>
+  <rect x="947" y="161" width="14" height="14" rx="4" fill="#F38466"/>
+  <rect x="947" y="229" width="14" height="14" rx="4" fill="#C5AA66"/>
+  <path d="M977 100H1036M977 168H1036M977 236H1036" stroke="#AAC7B8" stroke-width="4" stroke-linecap="round"/>
+</svg>
