@@ -1,0 +1,3 @@
+import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
+for(const [path,lang]of [['','ko'],['en/','en']]){const html=await readFile(`site-dist/${path}index.html`,'utf8');assert.match(html,new RegExp(`<html lang="${lang}"`));for(const part of ['rel="canonical"','hreflang="ko"','hreflang="en"','application/ld+json','getUser','createUser','listPosts'])assert.ok(html.includes(part),part);assert.ok(!html.includes('undefined'));}
+const xml=await readFile('site-dist/sitemap.xml','utf8');assert.equal((xml.match(/<loc>/g)||[]).length,2);console.log('Bilingual HTML, real generated examples and sitemap verified.');

@@ -16,9 +16,13 @@
     "cli",
     "typescript",
     "automation",
-    "hooks"
+    "hooks",
+    "query-key-factory",
+    "query-options",
+    "infinite-query",
+    "tanstack-query-v5"
   ],
-  "homepage": "https://github.com/uiwwsw/react-query-helper#readme",
+  "homepage": "https://react-query-helper.vercel.app/",
   "bugs": {
     "url": "https://github.com/uiwwsw/react-query-helper/issues"
   },
@@ -63,7 +67,8 @@
     "generate": "npm run build && node dist/cli.js generate",
     "test": "npm run build && node --test test/*.test.mjs && tsc -p test/tsconfig.json && tsc -p test/tsconfig.register.json",
     "prepack": "npm run build",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "build:site": "npm run build && node scripts/build-site.mjs"
   },
   "devDependencies": {
     "@tanstack/react-query": "^5.102.8",

@@ -166,3 +166,10 @@ If you do not commit generated files, run `query:generate` before the applicatio
 [Changelog](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [Logo and brand assets](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md) · [MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE)
 
 An independent community tool, not an official React or TanStack project.
+
+
+## Demo and search discovery / 데모·검색 노출
+
+[한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
+
+The demo is built from the actual analyzer and generator and shows query, mutation and infinite-query option output. It does not call a live API. Both languages have visible explanatory content, canonical/hreflang, structured data, a sitemap and robots rules. Vercel builds run the package tests before publishing; GitHub integration deploys main to production and pull requests to previews. [Deployment and SEO](docs/SEO.md).

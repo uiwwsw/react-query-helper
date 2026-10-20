@@ -166,3 +166,10 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 [변경 이력](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [로고와 브랜드 자산](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md) · [MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE)
 
 독립적인 커뮤니티 도구이며 React 또는 TanStack의 공식 프로젝트가 아닙니다.
+
+
+## Demo and search discovery / 데모·검색 노출
+
+[한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
+
+The demo is built from the actual analyzer and generator and shows query, mutation and infinite-query option output. It does not call a live API. Both languages have visible explanatory content, canonical/hreflang, structured data, a sitemap and robots rules. Vercel builds run the package tests before publishing; GitHub integration deploys main to production and pull requests to previews. [Deployment and SEO](docs/SEO.md).
