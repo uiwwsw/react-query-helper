@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "runtime": "library+vercel-demo",
+  "execution": "automatic",
+  "requireCleanGit": true,
+  "verify": [
+    "npm test",
+    "npm run build:site",
+    "node scripts/check-site.mjs"
+  ],
+  "deploy": [
+    "env VERCEL_ORG_ID=team_rDak9bbSNX7P2zOvDhhnARwh VERCEL_PROJECT_ID=prj_bRV0FChHmkJSaZocRfbtmYA3BdVh vercel deploy --prod --yes"
+  ],
+  "healthchecks": [
+    "https://react-query-helper.vercel.app/",
+    "https://react-query-helper.vercel.app/en/",
+    "https://react-query-helper.vercel.app/sitemap.xml",
+    "https://react-query-helper.vercel.app/robots.txt"
+  ]
+}
