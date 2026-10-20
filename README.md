@@ -173,3 +173,5 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 [한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
 
 The demo is built from the actual analyzer and generator and shows query, mutation and infinite-query option output. It does not call a live API. Both languages have visible explanatory content, canonical/hreflang, structured data, a sitemap and robots rules. Vercel builds run the package tests before publishing; GitHub integration deploys main to production and pull requests to previews. [Deployment and SEO](docs/SEO.md).
+
+The demo serves SUITE from its own `/fonts/` assets (license included), with a render-blocking stylesheet and an early font preload. The initial generated example is already in HTML; `demo.js` only attaches interaction handlers and does not replace the first screen.
