@@ -34,7 +34,8 @@
   "files": [
     "dist",
     "README_EN.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "AI-TRAINING-NOTICE.md"
   ],
   "bin": {
     "react-query-helper": "dist/cli.js"
@@ -62,13 +63,13 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node scripts/build.mjs && node .github/scripts/apply-ai-notice.mjs",
     "dev": "npm run build && node dist/cli.js watch",
     "generate": "npm run build && node dist/cli.js generate",
     "test": "npm run build && node --test test/*.test.mjs && tsc -p test/tsconfig.json && tsc -p test/tsconfig.register.json",
     "prepack": "npm run build",
     "smoke": "node scripts/smoke.mjs",
-    "build:site": "npm run build && node scripts/build-site.mjs"
+    "build:site": "npm run build && node scripts/build-site.mjs && node .github/scripts/apply-ai-notice.mjs"
   },
   "devDependencies": {
     "@tanstack/react-query": "^5.102.8",

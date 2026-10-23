@@ -1,0 +1,16 @@
+{
+  "assets": [
+    "AI-TRAINING-NOTICE.md"
+  ],
+  "surfaces": [
+    "scripts/build-site.mjs"
+  ],
+  "robots": [],
+  "packages": [
+    "package.json"
+  ],
+  "outputs": [
+    "site-dist",
+    "dist"
+  ]
+}
