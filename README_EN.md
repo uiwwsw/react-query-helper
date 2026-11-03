@@ -173,5 +173,3 @@ An independent community tool, not an official React or TanStack project.
 [한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
 
 The demo is built from the actual analyzer and generator and shows query, mutation and infinite-query option output. It does not call a live API. Both languages have visible explanatory content, canonical/hreflang, structured data, a sitemap and robots rules. Vercel builds run the package tests before publishing; GitHub integration deploys main to production and pull requests to previews. [Deployment and SEO](docs/SEO.md).
-
-AI 학습·미세조정 및 학습용 데이터 수집에 대한 권리자 의사는 [AI 이용 고지 / AI use notice](AI-TRAINING-NOTICE.md)를 참고하세요.
