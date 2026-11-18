@@ -1,20 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "npm test && npm run build:site",
-  "outputDirectory": "site-dist",
-  "installCommand": "npm ci",
-  "cleanUrls": true,
-  "trailingSlash": true,
-  "headers": [
+  "installCommand": "",
+  "buildCommand": "",
+  "outputDirectory": "vercel-proxy",
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "rewrites": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        }
-      ]
+      "source": "/:path*",
+      "destination": "https://react-query-helper.movvcorp.duckdns.org/:path*"
     }
   ]
 }
