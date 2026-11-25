@@ -30,41 +30,66 @@
 
 > **Version notice:** This README describes **2.x**. Check the npm badge above for the published version. If you use 1.x, read the [1.3.0 docs](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README_EN.md) and [migration guide](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x). To try changes not yet published, [install from source](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#install-from-source-before-npm-publication).
 
-## What it provides
+A CLI and runtime helpers that read TypeScript API function files and generate query keys and TanStack Query v5 option factories (code that calls `queryOptions`, `infiniteQueryOptions` and `mutationOptions`). The input is existing TypeScript functions, not an OpenAPI spec. It has one maintainer and is not widely used.
 
-- `init`: writes a starter `rqh.config.ts`. An existing config file is not overwritten.
-- `generate`: reads top-level functions from the TypeScript files in `sourceDir` and writes `*Options.ts` files.
-- For each function, a key constant `<functionName>Key`. The key is built from the source path's directories, the file name and the function name.
-- For each function, factories that call the `queryOption`, `infiniteOption` and `mutationOption` helpers.
-- The function name prefix (`get`, `list`, `create`, and so on) decides whether a query, infinite query or mutation is generated. Configuration can change this.
-- For mutations of functions with two or more arguments, a variables object type and `mapVariablesToArgs`.
-- `withOptions` on each factory overrides TanStack Query options such as `staleTime` and `select`. Argument, result and `select` result types are inferred.
-- The same factory can be reused in `useQuery`, `useSuspenseQuery`, `prefetchQuery` and `getQueryData`.
+## What works now
+
+- `generate`: for each top-level function in `sourceDir`, writes a key constant and query, infinite-query and mutation option factories to `*Options.ts`.
+- Keys are built from the source path's directories, the file name and the function name.
+- The function name prefix (`get`, `list`, `create` and so on) picks what is generated. Configuration can change this.
+- Mutations of functions with two or more arguments get a variables object type and `mapVariablesToArgs`.
+- `withOptions` overrides `staleTime`, `select` and similar; argument, result and `select` result types are inferred.
 - `generate --check`: writes nothing and exits with code 1 when output is missing, changed or stale.
-- `watch`: regenerates when the sources, the config file or an explicitly listed local plugin file changes.
-- An ownership header on the first line of each generated file. Only files with the header are updated or deleted; an existing file without it is not overwritten and causes an error.
+- `watch`: regenerates when the sources, the config file or a listed local plugin changes.
+- Generated files carry an ownership header on the first line; an existing file without it is not overwritten and causes an error.
 - `customAnalyzerPath` and `customTemplatePath` replace the analyzer and the template.
 
-Generation rules are [configurable](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#generation-rules).
+## Not done / planned
+
+- Reading OpenAPI, Swagger or other spec files.
+- Hook generation. `useQuery` and the rest are called from TanStack Query directly.
+- HTTP client generation. Your existing API functions are called as they are.
+- Clients other than React (Vue, Svelte, Solid and so on). Only TanStack Query v5 for React is targeted.
+- Mock generation.
+- Guessing pagination cursors or forwarding `AbortSignal`. Both are configured per API.
+- Analysis of re-export barrels, class or object methods, and functions returned by higher-order functions.
+- Preserving every generic/overload relationship in the option factory types.
+- Deducing HTTP semantics from function names. When a name does not follow the prefix rules, set it with `artifactsByName`.
+- `watch` noticing changes in external files that the config imports. A restart is needed.
+- Directory-wide transactions. Writes are atomic per file only.
+- Running generated files directly in Node ESM. They target TypeScript bundlers.
+- Automatic migration of unmarked 1.x generated files. They must be moved by hand.
+
+## Where it stands
+
+Weekly npm downloads (last week, api.npmjs.org):
+
+| Package                                 |    Downloads |
+| --------------------------------------- | -----------: |
+| `@hey-api/openapi-ts`                   |    8,305,092 |
+| `orval`                                 |    4,328,761 |
+| `openapi-react-query`                   |      956,262 |
+| `@lukemorales/query-key-factory`        |      493,363 |
+| `@kubb/plugin-react-query`              |      140,067 |
+| `@uiwwsw/react-query-helper` (this one) |          202 |
+
+- It has almost no users and one maintainer. There is no adoption to compare with the tools above.
+- The larger tools generate types, clients, hooks, output for several frameworks and mocks from an OpenAPI spec. This package does none of that.
+- If you have an OpenAPI spec, use one of those tools.
+- This package fits one case: hand-written TypeScript API functions without a spec, from which you want keys and option factories.
+- `@lukemorales/query-key-factory` covers keys only, and you declare the key structure by hand. This package generates keys and option factories from file paths and function names.
+- With only a few queries, writing `queryOptions` directly is simpler. A comparison is in [Architecture and dependencies](docs/ARCHITECTURE_EN.md#similar-tools).
 
 <a id="quick-start"></a>
 
 ## Install and Use
-
-### 1. Install and Initialize
 
 ```sh
 npm install @uiwwsw/react-query-helper@^2 @tanstack/react-query react
 npx @uiwwsw/react-query-helper init
 ```
 
-Install as a regular dependency, not with `-D`: generated code imports the runtime helpers.
-Only add React and TanStack Query if your app does not already have them.
-
-### 2. Point to Your APIs
-
-Adjust the paths in the generated `rqh.config.ts` to match your app.
-No custom plugins or import aliases are required.
+Generated code imports this package, so install it as a regular dependency, not with `-D`.
 
 ```ts
 // rqh.config.ts
@@ -73,26 +98,16 @@ import type { AutoQueryConfig } from "@uiwwsw/react-query-helper/config";
 export default {
   sourceDir: "./libs",
   outputDir: "./src/options",
-  ignoredFiles: ["domain.ts", "adaptor.ts", "**/*.test.ts", "**/*.spec.ts"],
   template: { artifactStrategy: "smart" },
 } satisfies AutoQueryConfig;
 ```
-
-Place your existing API functions there. This minimal example demonstrates the flow:
 
 ```ts
 // libs/users/api.ts
 export const getUser = async (id: string) => ({ id, name: "Ada" });
 ```
 
-### 3. Generate and Use
-
-```sh
-npx @uiwwsw/react-query-helper generate
-```
-
-The input `libs/users/api.ts` produces `src/options/users/apiOptions.ts`.
-The import path and the `Source root` comment depend on where you place the directories.
+Running `npx @uiwwsw/react-query-helper generate` writes `src/options/users/apiOptions.ts`.
 
 ```ts
 // Generated by @uiwwsw/react-query-helper. DO NOT EDIT.
@@ -108,8 +123,7 @@ export const getUserQueryOption = __rqh_query(getUserKey, getUser);
 export const getUserInfiniteQueryOption = __rqh_infinite(getUserKey, getUser);
 ```
 
-**Edit the source API, not the generated file.**
-An infinite-query factory is generated too; configure pagination explicitly for your API.
+Edit the source API, not the generated file. Usage:
 
 ```tsx
 // src/UserName.tsx
@@ -130,9 +144,6 @@ export function UserName({ id }: { id: string }) {
 }
 ```
 
-Wrap the app in `QueryClientProvider`. The selected `user.data` is inferred as `string`.
-Reuse the same factory outside components:
-
 ```ts
 // With your existing QueryClient instance, client
 await client.prefetchQuery(getUserQueryOption("u1"));
@@ -140,80 +151,15 @@ const cached = client.getQueryData(getUserQueryOption("u1").queryKey);
 // { id: string; name: string } | undefined
 ```
 
-### 4. Connect Your Workflow
+API arguments become part of the cache key. Do not pass tokens or authorization headers as arguments.
 
-```json
-{
-  "scripts": {
-    "query:generate": "react-query-helper generate",
-    "query:watch": "react-query-helper watch",
-    "query:check": "react-query-helper generate --check"
-  }
-}
-```
+## Docs
 
-Use `npm run query:watch` during development and `npm run query:check` in application CI.
-Check never writes files; missing, changed, or stale output causes exit code 1.
-If you do not commit generated files, run `query:generate` before the application's typecheck instead.
-
-## Not included
-
-- Hooks. `useQuery` and the rest come from TanStack Query.
-- An HTTP client. Your existing API functions are called as they are.
-- Caching, retries and `QueryClient`. Defaults follow TanStack Query/`QueryClient`.
-- Reading OpenAPI or other spec files. The input is TypeScript source files.
-- Guessing pagination or request cancellation. Configure cursor mapping and forward `AbortSignal` to the request yourself.
-- Analysis of re-export barrels, class or object methods, and functions returned by higher-order functions. The default target is top-level functions.
-- Preserving every generic/overload relationship in the option factory types. Use a concrete wrapper or a custom template when you need it.
-- Running generated files directly in Node ESM. Generated code targets TypeScript bundlers.
-- Official React or TanStack status. This is an independent community tool.
-
-## Built on
-
-- [TanStack Query](https://tanstack.com/query): provides caching, retries, `QueryClient` and hooks. Generated code calls `queryOptions`, `infiniteQueryOptions` and `mutationOptions`. It is a peer dependency.
-- [TypeScript](https://www.typescriptlang.org): its compiler API parses source files to extract the function list.
-- [Prettier](https://prettier.io): formats the generated output.
-- [Jiti](https://github.com/unjs/jiti): loads TypeScript config and plugin files.
-- [picomatch](https://github.com/micromatch/picomatch): handles the `ignoredFiles` globs.
-- [chokidar](https://github.com/paulmillr/chokidar): watches files for `watch`.
-
-If you have an OpenAPI spec, also consider spec-based tools such as [Orval](https://orval.dev), [Kubb](https://kubb.dev) and [Hey API](https://heyapi.dev). Comparison and limits are in [Architecture and dependencies](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE_EN.md).
-
-## Find a Recipe
-
-| Task                                                                     | Guide                                                                                                                            |
-| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| Config files, paths, and ignore globs                                    | [Configuration](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#configuration)                       |
-| Choose query/mutation output per function                                | [Generation and cache keys](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#generation-rules)        |
-| Mutation arguments, cancellation, overrides                              | [Runtime options](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#runtime-options)                   |
-| Cursor pagination and `maxPages`                                         | [Infinite queries](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#infinite-queries)                 |
-| Upgrade an existing 1.x application                                      | [Migration checklist](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x)             |
-| Unsupported syntax and custom plugins                                    | [Scope and extensions](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#scope-and-extensions)         |
-| Tests, local installation, npm publishing                                | [Development and releases](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#development-and-releases) |
-| Module roles, dependencies, relation to TanStack Query and similar tools | [Architecture and dependencies](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE_EN.md)                  |
-| Findings behind this release and remaining limits                        | [Repository review](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                                       |
-
-## Compatibility and Boundaries
-
-| Area           | Support                                              |
-| -------------- | ---------------------------------------------------- |
-| Node.js        | 22+ for CLI/build; CI covers 22/24                   |
-| React          | 18/19                                                |
-| TanStack Query | `>=5.102.8 <6`                                       |
-| TypeScript     | 5.8+; generated code targets TS bundlers             |
-| Browser        | Browser-safe root entry; separate Node tool subpaths |
-
-- **2.x contains breaking changes.** Move legacy generated files aside, regenerate, and migrate manual keys and persisted caches.
-- API arguments become part of the cache key. Use serializable values and never include tokens or authorization headers.
-- Pagination and cancellation are explicit. Configure cursor mapping and forward AbortSignal to the request yourself.
-- The analyzer targets top-level functions, not every TypeScript construct. Re-export barrels, methods, and all generic/overload relationships are not universally supported.
-
-## Demo
-
-[한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
-
-The demo shows query, mutation and infinite-query output produced by this package's analyzer and generator. It does not call a live API. Deployment notes: [docs/SEO.md](https://github.com/uiwwsw/react-query-helper/blob/main/docs/SEO.md).
+- [Configuration and usage reference](docs/REFERENCE_EN.md): CLI, configuration, generation rules, runtime options, infinite queries, migrating from 1.x
+- [Sections moved from the README](docs/GUIDE_EN.md): full feature list, step-by-step install, recipe table, compatibility, dependencies, demo
+- [Architecture and dependencies](docs/ARCHITECTURE_EN.md): module layout, comparison with similar tools
+- [Repository review](docs/REVIEW.md) · [Changelog](CHANGELOG.md) · [Demo](https://react-query-helper.vercel.app/en/)
 
 ## License
 
-[MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE) · [Changelog](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [Logo and brand assets](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md)
+[MIT License](LICENSE)
