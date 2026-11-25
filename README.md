@@ -30,7 +30,7 @@
 
 > **버전 안내:** 이 문서는 **2.x** 기준입니다. 실제 게시 버전은 위 npm 배지에서 확인하세요. 1.x를 사용 중이라면 [1.3.0 문서](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README.md)와 [마이그레이션 가이드](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전)를 참고하세요. 아직 게시되지 않은 변경은 [소스에서 설치](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#npm-게시-전-소스에서-설치하기)할 수 있습니다.
 
-TypeScript API 함수 파일을 읽어 쿼리 키와 TanStack Query v5 옵션 팩토리(`queryOptions`, `infiniteQueryOptions`, `mutationOptions`를 호출하는 코드)를 생성하는 CLI와 런타임 헬퍼입니다. 입력은 OpenAPI 명세가 아니라 이미 있는 TypeScript 함수입니다. 제작자는 한 명이고, 아직 널리 쓰이지 않습니다.
+TypeScript API 함수 파일을 읽어 쿼리 키와 TanStack Query v5 옵션 팩토리(`queryOptions`, `infiniteQueryOptions`, `mutationOptions`를 호출하는 코드)를 생성하는 CLI와 런타임 헬퍼입니다. 입력은 이미 있는 TypeScript 함수입니다. OpenAPI 명세는 읽지 않습니다. 제작자는 한 명이고, 아직 널리 쓰이지 않습니다.
 
 ## 지금 되는 것
 
@@ -89,7 +89,7 @@ npm install @uiwwsw/react-query-helper@^2 @tanstack/react-query react
 npx @uiwwsw/react-query-helper init
 ```
 
-생성 코드가 이 패키지를 import하므로 `-D`가 아닌 일반 dependency로 설치합니다.
+생성 코드가 이 패키지를 import하므로 일반 dependency로 설치합니다(`-D` 사용 금지).
 
 ```ts
 // rqh.config.ts
@@ -123,7 +123,7 @@ export const getUserQueryOption = __rqh_query(getUserKey, getUser);
 export const getUserInfiniteQueryOption = __rqh_infinite(getUserKey, getUser);
 ```
 
-생성 파일은 고치지 않고 원본 API를 수정합니다. 사용:
+생성 파일은 수정하지 않습니다. 고칠 때는 원본 API를 수정합니다. 사용:
 
 ```tsx
 // src/UserName.tsx
