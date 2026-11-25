@@ -8,43 +8,48 @@
 <h1 align="center">React Query Helper</h1>
 
 <p align="center">
-  TypeScript API 함수 파일에서 쿼리 키와 옵션 팩토리를 생성하는 CLI와 런타임 헬퍼입니다.<br />
-  생성 코드는 <a href="https://tanstack.com/query">TanStack Query</a> v5의 <code>queryOptions</code>, <code>infiniteQueryOptions</code>, <code>mutationOptions</code>를 호출합니다.
+  TypeScript API 함수 파일에서 쿼리 키와 TanStack Query v5 옵션 팩토리(<code>queryOptions</code>, <code>infiniteQueryOptions</code>, <code>mutationOptions</code> 호출 코드)를 생성하는 CLI와 런타임 헬퍼입니다.
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/v/%40uiwwsw%2Freact-query-helper?style=flat-square&amp;label=npm&amp;color=133c35" alt="Published npm version" /></a>
-  <a href="https://github.com/uiwwsw/react-query-helper/actions/workflows/ci.yml"><img src="https://github.com/uiwwsw/react-query-helper/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status on main" /></a>
-  <a href="https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-f38466?style=flat-square" alt="MIT license" /></a>
+  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/v/@uiwwsw/react-query-helper?style=flat-square" alt="npm 버전" /></a>
+  <a href="https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@uiwwsw/react-query-helper?style=flat-square" alt="라이선스" /></a>
+  <a href="https://github.com/uiwwsw/react-query-helper/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/uiwwsw/react-query-helper/ci.yml?branch=main&amp;style=flat-square&amp;label=CI" alt="main 브랜치 CI 상태" /></a>
+  <a href="https://tanstack.com/query"><img src="https://img.shields.io/npm/dependency-version/@uiwwsw/react-query-helper/peer/@tanstack/react-query?style=flat-square&amp;label=TanStack%20Query" alt="TanStack Query peer 의존성 범위" /></a>
+  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/node/v/@uiwwsw/react-query-helper?style=flat-square" alt="Node.js 요구 버전" /></a>
+  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper"><img src="https://img.shields.io/npm/types/@uiwwsw/react-query-helper?style=flat-square" alt="포함된 TypeScript 타입" /></a>
 </p>
 
 <p align="center">
-  <a href="#quick-start">빠른 시작</a> ·
-  <a href="https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md">설정과 예제</a> ·
-  <a href="https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전">1.x에서 이전</a> ·
+  <a href="https://react-query-helper.vercel.app/">데모</a> ·
+  <a href="https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE.md">구성과 의존성</a> ·
+  <a href="https://www.npmjs.com/package/@uiwwsw/react-query-helper">npm</a> ·
+  <a href="https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md">변경 이력</a> ·
   <a href="https://github.com/uiwwsw/react-query-helper/blob/main/README_EN.md">English</a>
 </p>
 
 > **버전 안내:** 이 문서는 **2.x** 기준입니다. 실제 게시 버전은 위 npm 배지에서 확인하세요. 1.x를 사용 중이라면 [1.3.0 문서](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README.md)와 [마이그레이션 가이드](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전)를 참고하세요. 아직 게시되지 않은 변경은 [소스에서 설치](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#npm-게시-전-소스에서-설치하기)할 수 있습니다.
 
-## 무엇을 하나요?
+## 제공하는 것
 
-같은 API를 컴포넌트, prefetch, 캐시 조회에서 사용할 때 반복되는 키와 옵션 구성을 줄입니다.
-**훅이나 HTTP 클라이언트를 새로 만들지 않습니다.** 기존 API 함수와 TanStack Query를 그대로 사용합니다.
+- `init`: `rqh.config.ts` 시작 템플릿을 만듭니다. 기존 설정 파일은 덮어쓰지 않습니다.
+- `generate`: `sourceDir`의 TypeScript 파일에서 최상위 함수를 읽어 `*Options.ts`를 생성합니다.
+- 함수마다 키 상수 `<함수명>Key`를 생성합니다. 키는 소스 경로의 디렉토리, 파일명, 함수명으로 만듭니다.
+- 함수마다 `queryOption`, `infiniteOption`, `mutationOption` 헬퍼를 호출하는 팩토리를 생성합니다.
+- 함수 이름의 접두사(`get`, `list`, `create` 등)로 query, infinite, mutation 중 만들 종류를 정합니다. 설정으로 바꿀 수 있습니다.
+- 인자가 둘 이상인 함수의 mutation에는 변수 객체 타입과 `mapVariablesToArgs`를 생성합니다.
+- 팩토리의 `withOptions`로 `staleTime`, `select` 같은 TanStack Query 옵션을 덮어쓸 수 있고, 인자·반환·`select` 결과 타입이 추론됩니다.
+- 같은 팩토리를 `useQuery`, `useSuspenseQuery`, `prefetchQuery`, `getQueryData`에서 재사용할 수 있습니다.
+- `generate --check`: 파일을 쓰지 않고 누락·변경·오래된 결과가 있으면 종료 코드 1을 반환합니다.
+- `watch`: 소스, 설정 파일, 직접 지정한 로컬 플러그인 파일이 바뀔 때 다시 생성합니다.
+- 생성 파일 첫 줄에 소유 표시를 붙입니다. 표시가 있는 파일만 갱신하거나 삭제하고, 표시 없는 기존 파일은 덮어쓰지 않고 오류로 처리합니다.
+- `customAnalyzerPath`, `customTemplatePath`로 분석기와 템플릿을 교체할 수 있습니다.
 
-| 직접 관리하던 것           | 생성 후                                                   |
-| -------------------------- | --------------------------------------------------------- |
-| 곳곳에 흩어진 쿼리 키      | 파일 경로·함수명·인자를 반영한 키                         |
-| 같은 요청을 위한 반복 옵션 | `useQuery`, `useSuspenseQuery`, fetch/prefetch에서 재사용 |
-| API와 별도로 유지하는 타입 | 인자·응답·`select`·캐시 데이터 타입 추론                  |
-| API 변경 후 생성 파일 정리 | watch 재생성, 오래된 소유 파일 정리, CI의 `--check`       |
-
-기본 캐싱 정책과 재시도는 TanStack Query/`QueryClient`를 따릅니다.
-이름 기반 생성 규칙은 [설정으로 재정의](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#생성-규칙)할 수 있습니다.
+생성 규칙은 [설정으로 재정의](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#생성-규칙)할 수 있습니다.
 
 <a id="quick-start"></a>
 
-## 빠른 시작
+## 설치와 사용
 
 ### 1. 설치하고 초기화
 
@@ -86,8 +91,24 @@ export const getUser = async (id: string) => ({ id, name: "Ada" });
 npx @uiwwsw/react-query-helper generate
 ```
 
-`src/options/users/apiOptions.ts`에 `getUserKey`, `getUserQueryOption`,
-`getUserInfiniteQueryOption`이 생성됩니다. **생성 파일 대신 원본 API를 수정하세요.**
+입력 `libs/users/api.ts`에서 `src/options/users/apiOptions.ts`가 생성됩니다.
+import 경로와 `Source root` 주석은 설정한 디렉토리 위치에 따라 달라집니다.
+
+```ts
+// Generated by @uiwwsw/react-query-helper. DO NOT EDIT.
+// Source root: "../../libs"
+import { getUser } from "../../../libs/users/api";
+import {
+  queryOption as __rqh_query,
+  infiniteOption as __rqh_infinite,
+} from "@uiwwsw/react-query-helper";
+
+export const getUserKey = ["users", "api", "getUser"] as const;
+export const getUserQueryOption = __rqh_query(getUserKey, getUser);
+export const getUserInfiniteQueryOption = __rqh_infinite(getUserKey, getUser);
+```
+
+**생성 파일 대신 원본 API를 수정하세요.**
 무한 쿼리 팩토리도 생성되지만 실제 페이지네이션 설정은 API에 맞게 별도로 지정합니다.
 
 ```tsx
@@ -135,6 +156,29 @@ const cached = client.getQueryData(getUserQueryOption("u1").queryKey);
 check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발견하면 종료 코드 1을 반환합니다.
 생성물을 커밋하지 않는 프로젝트라면 CI에서 `query:generate` 후 앱 타입 검사를 실행하세요.
 
+## 제공하지 않는 것
+
+- 훅. `useQuery` 등은 TanStack Query의 것을 그대로 씁니다.
+- HTTP 클라이언트. 기존 API 함수를 그대로 호출합니다.
+- 캐시, 재시도, `QueryClient`. 기본 정책은 TanStack Query/`QueryClient`를 따릅니다.
+- OpenAPI 등 명세 파일 읽기. 입력은 TypeScript 소스 파일입니다.
+- 페이지네이션과 요청 취소의 자동 추측. 커서 매핑과 `AbortSignal` 전달은 API에 맞춰 직접 설정합니다.
+- re-export barrel, 클래스·객체 메서드, 고차 함수가 반환한 함수의 분석. 기본 대상은 최상위 함수입니다.
+- 모든 generic/overload 관계를 옵션 팩토리 타입으로 보존하는 변환. 필요하면 구체적 wrapper나 custom template을 사용합니다.
+- Node ESM에서 생성 파일을 직접 실행하는 용도. 생성 코드는 TS 번들러용입니다.
+- React 또는 TanStack의 공식 프로젝트 지위. 독립적인 커뮤니티 도구입니다.
+
+## 기반
+
+- [TanStack Query](https://tanstack.com/query): 캐시, 재시도, `QueryClient`, 훅을 제공합니다. 생성 코드가 `queryOptions`, `infiniteQueryOptions`, `mutationOptions`를 호출합니다. peer dependency입니다.
+- [TypeScript](https://www.typescriptlang.org): 컴파일러 API로 소스 파일을 파싱해 함수 목록을 추출합니다.
+- [Prettier](https://prettier.io): 생성 결과를 포맷합니다.
+- [Jiti](https://github.com/unjs/jiti): TypeScript 설정과 플러그인을 로드합니다.
+- [picomatch](https://github.com/micromatch/picomatch): `ignoredFiles` glob을 처리합니다.
+- [chokidar](https://github.com/paulmillr/chokidar): `watch`의 파일 감시에 씁니다.
+
+OpenAPI 명세가 있다면 [Orval](https://orval.dev), [Kubb](https://kubb.dev), [Hey API](https://heyapi.dev) 같은 명세 기반 도구도 검토해 보세요. 비교와 한계는 [구성과 의존성](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE.md)에 정리했습니다.
+
 ## 필요한 예제 찾기
 
 | 하고 싶은 일                                           | 가이드                                                                                                          |
@@ -164,12 +208,12 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 - 페이지네이션과 요청 취소는 자동 추측하지 않습니다. 커서 매핑과 `AbortSignal` 전달은 API에 맞춰 설정하세요.
 - 최상위 함수가 기본 대상입니다. re-export barrel, 메서드, 모든 generic/overload 관계를 처리하는 범용 TypeScript 변환기는 아닙니다.
 
-[변경 이력](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [로고와 브랜드 자산](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md) · [MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE)
-
-독립적인 커뮤니티 도구이며 React 또는 TanStack의 공식 프로젝트가 아닙니다. 캐시, 재시도, `QueryClient`, 훅은 [TanStack Query](https://tanstack.com/query)가 제공하고, 이 패키지는 그 옵션 헬퍼를 호출하는 코드를 생성합니다. OpenAPI 명세가 있다면 [Orval](https://orval.dev), [Kubb](https://kubb.dev), [Hey API](https://heyapi.dev) 같은 명세 기반 도구도 검토해 보세요. 비교와 한계는 [구성과 의존성](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE.md)에 정리했습니다.
-
-## Demo / 데모
+## 데모
 
 [한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
 
-The demo shows query, mutation and infinite-query output produced by this package's analyzer and generator. It does not call a live API. Deployment notes: [docs/SEO.md](https://github.com/uiwwsw/react-query-helper/blob/main/docs/SEO.md).
+데모는 이 패키지의 분석기와 생성기가 만든 query, mutation, infinite-query 출력을 보여 줍니다. 실제 API를 호출하지 않습니다. 배포 메모: [docs/SEO.md](https://github.com/uiwwsw/react-query-helper/blob/main/docs/SEO.md).
+
+## 라이선스
+
+[MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE) · [변경 이력](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [로고와 브랜드 자산](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md)
