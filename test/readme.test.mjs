@@ -19,6 +19,8 @@ const documents = [
   "README_EN.md",
   "docs/REFERENCE.md",
   "docs/REFERENCE_EN.md",
+  "docs/GUIDE.md",
+  "docs/GUIDE_EN.md",
   "docs/ARCHITECTURE.md",
   "docs/ARCHITECTURE_EN.md",
   "assets/README.md",
