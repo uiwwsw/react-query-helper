@@ -168,10 +168,8 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 
 독립적인 커뮤니티 도구이며 React 또는 TanStack의 공식 프로젝트가 아닙니다. 캐시, 재시도, `QueryClient`, 훅은 [TanStack Query](https://tanstack.com/query)가 제공하고, 이 패키지는 그 옵션 헬퍼를 호출하는 코드를 생성합니다. OpenAPI 명세가 있다면 [Orval](https://orval.dev), [Kubb](https://kubb.dev), [Hey API](https://heyapi.dev) 같은 명세 기반 도구도 검토해 보세요. 비교와 한계는 [구성과 의존성](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE.md)에 정리했습니다.
 
-## Demo and search discovery / 데모·검색 노출
+## Demo / 데모
 
 [한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
 
-The demo is built from the actual analyzer and generator and shows query, mutation and infinite-query option output. It does not call a live API. Both languages have visible explanatory content, canonical/hreflang, structured data, a sitemap and robots rules. Vercel builds run the package tests before publishing; GitHub integration deploys main to production and pull requests to previews. [Deployment and SEO](docs/SEO.md).
-
-The demo serves SUITE from its own `/fonts/` assets (license included), with a render-blocking stylesheet and an early font preload. The initial generated example is already in HTML; `demo.js` only attaches interaction handlers and does not replace the first screen.
+The demo shows query, mutation and infinite-query output produced by this package's analyzer and generator. It does not call a live API. Deployment notes: [docs/SEO.md](https://github.com/uiwwsw/react-query-helper/blob/main/docs/SEO.md).

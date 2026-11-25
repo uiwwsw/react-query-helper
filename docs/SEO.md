@@ -11,3 +11,5 @@ Both pages provide descriptive titles, content, canonical URLs, reciprocal ko/en
 GitHub CI tests the supported Node/React matrix and validates the bilingual site. Vercel Git integration builds production from main and previews for other branches/PRs. The Vercel build runs npm test before npm run build:site, so failing package tests prevent publishing that build. A failed deployment keeps the preceding production deployment. No repository-stored bearer token is necessary for native Git integration. npm publishing is a separate release process.
 
 Local checks: npm test, npm run build:site, node scripts/check-site.mjs. Check public health and both languages after deployment. Site ownership and sitemap submission do not guarantee search indexing/ranking.
+
+The demo serves the SUITE font from its own `/fonts/` directory (license included) with a render-blocking stylesheet and an early preload. `demo.js` only attaches interaction handlers; the first example is already in the HTML. GitHub integration deploys main to production and pull requests to previews.
