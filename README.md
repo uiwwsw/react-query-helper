@@ -1,15 +1,15 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero-dark.svg" />
-    <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero.svg" alt="React Query Helper: Your API. Query-ready. TypeScript in, reusable options out." width="1120" />
+    <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero.svg" alt="React Query Helper logo" width="1120" />
   </picture>
 </p>
 
 <h1 align="center">React Query Helper</h1>
 
 <p align="center">
-  API 함수는 그대로. 반복되는 쿼리 설정은 생성하세요.<br />
-  TypeScript 함수에서 TanStack Query v5의 타입 안전한 옵션 팩토리를 만듭니다.
+  TypeScript API 함수 파일에서 쿼리 키와 옵션 팩토리를 생성하는 CLI와 런타임 헬퍼입니다.<br />
+  생성 코드는 <a href="https://tanstack.com/query">TanStack Query</a> v5의 <code>queryOptions</code>, <code>infiniteQueryOptions</code>, <code>mutationOptions</code>를 호출합니다.
 </p>
 
 <p align="center">
@@ -27,7 +27,7 @@
 
 > **버전 안내:** 이 문서는 **2.x** 기준입니다. 실제 게시 버전은 위 npm 배지에서 확인하세요. 1.x를 사용 중이라면 [1.3.0 문서](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README.md)와 [마이그레이션 가이드](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전)를 참고하세요. 아직 게시되지 않은 변경은 [소스에서 설치](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#npm-게시-전-소스에서-설치하기)할 수 있습니다.
 
-## 무엇을 줄여주나요?
+## 무엇을 하나요?
 
 같은 API를 컴포넌트, prefetch, 캐시 조회에서 사용할 때 반복되는 키와 옵션 구성을 줄입니다.
 **훅이나 HTTP 클라이언트를 새로 만들지 않습니다.** 기존 API 함수와 TanStack Query를 그대로 사용합니다.
@@ -166,7 +166,7 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 
 [변경 이력](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [로고와 브랜드 자산](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md) · [MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE)
 
-독립적인 커뮤니티 도구이며 React 또는 TanStack의 공식 프로젝트가 아닙니다.
+독립적인 커뮤니티 도구이며 React 또는 TanStack의 공식 프로젝트가 아닙니다. 캐시, 재시도, `QueryClient`, 훅은 [TanStack Query](https://tanstack.com/query)가 제공하고, 이 패키지는 그 옵션 헬퍼를 호출하는 코드를 생성합니다. OpenAPI 명세가 있다면 [Orval](https://orval.dev), [Kubb](https://kubb.dev), [Hey API](https://heyapi.dev) 같은 명세 기반 도구도 검토해 보세요. 비교와 한계는 [구성과 의존성](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE.md)에 정리했습니다.
 
 ## Demo and search discovery / 데모·검색 노출
 
