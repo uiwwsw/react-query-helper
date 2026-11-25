@@ -1,15 +1,15 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero-dark.svg" />
-    <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero.svg" alt="React Query Helper: Your API. Query-ready. TypeScript in, reusable options out." width="1120" />
+    <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero.svg" alt="React Query Helper logo" width="1120" />
   </picture>
 </p>
 
 <h1 align="center">React Query Helper</h1>
 
 <p align="center">
-  API 함수는 그대로. 반복되는 쿼리 설정은 생성하세요.<br />
-  TypeScript 함수에서 TanStack Query v5의 타입 안전한 옵션 팩토리를 만듭니다.
+  TypeScript API 함수 파일에서 쿼리 키와 옵션 팩토리를 생성하는 CLI와 런타임 헬퍼입니다.<br />
+  생성 코드는 <a href="https://tanstack.com/query">TanStack Query</a> v5의 <code>queryOptions</code>, <code>infiniteQueryOptions</code>, <code>mutationOptions</code>를 호출합니다.
 </p>
 
 <p align="center">
@@ -27,7 +27,7 @@
 
 > **버전 안내:** 이 문서는 **2.x** 기준입니다. 실제 게시 버전은 위 npm 배지에서 확인하세요. 1.x를 사용 중이라면 [1.3.0 문서](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README.md)와 [마이그레이션 가이드](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전)를 참고하세요. 아직 게시되지 않은 변경은 [소스에서 설치](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#npm-게시-전-소스에서-설치하기)할 수 있습니다.
 
-## 무엇을 줄여주나요?
+## 무엇을 하나요?
 
 같은 API를 컴포넌트, prefetch, 캐시 조회에서 사용할 때 반복되는 키와 옵션 구성을 줄입니다.
 **훅이나 HTTP 클라이언트를 새로 만들지 않습니다.** 기존 API 함수와 TanStack Query를 그대로 사용합니다.
@@ -137,16 +137,17 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 
 ## 필요한 예제 찾기
 
-| 하고 싶은 일                        | 가이드                                                                                                          |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| 설정 파일, 경로, ignore glob 변경   | [설정](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#설정)                           |
-| 함수별 query/mutation 생성 제어     | [생성 규칙과 캐시 키](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#생성-규칙)       |
-| mutation 인자, 취소, 옵션 확장      | [런타임 옵션](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#런타임-옵션)             |
-| 커서 페이지네이션과 `maxPages`      | [무한 쿼리](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#무한-쿼리)                 |
-| 기존 1.x 프로젝트 업그레이드        | [마이그레이션 체크리스트](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전) |
-| 지원하지 않는 문법, 커스텀 플러그인 | [지원 범위와 확장](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#범위와-확장)        |
-| 테스트, 로컬 설치, npm 배포 설정    | [개발과 배포](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#개발과-배포)             |
-| 이번 개선의 근거와 남은 한계        | [저장소 검토 기록](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                       |
+| 하고 싶은 일                                           | 가이드                                                                                                          |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 설정 파일, 경로, ignore glob 변경                      | [설정](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#설정)                           |
+| 함수별 query/mutation 생성 제어                        | [생성 규칙과 캐시 키](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#생성-규칙)       |
+| mutation 인자, 취소, 옵션 확장                         | [런타임 옵션](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#런타임-옵션)             |
+| 커서 페이지네이션과 `maxPages`                         | [무한 쿼리](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#무한-쿼리)                 |
+| 기존 1.x 프로젝트 업그레이드                           | [마이그레이션 체크리스트](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전) |
+| 지원하지 않는 문법, 커스텀 플러그인                    | [지원 범위와 확장](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#범위와-확장)        |
+| 테스트, 로컬 설치, npm 배포 설정                       | [개발과 배포](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#개발과-배포)             |
+| 모듈별 역할, 의존성, TanStack Query·유사 도구와의 관계 | [구성과 의존성](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE.md)                    |
+| 이번 개선의 근거와 남은 한계                           | [저장소 검토 기록](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                       |
 
 ## 지원 환경과 주의점
 
@@ -165,13 +166,10 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 
 [변경 이력](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [로고와 브랜드 자산](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md) · [MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE)
 
-독립적인 커뮤니티 도구이며 React 또는 TanStack의 공식 프로젝트가 아닙니다.
+독립적인 커뮤니티 도구이며 React 또는 TanStack의 공식 프로젝트가 아닙니다. 캐시, 재시도, `QueryClient`, 훅은 [TanStack Query](https://tanstack.com/query)가 제공하고, 이 패키지는 그 옵션 헬퍼를 호출하는 코드를 생성합니다. OpenAPI 명세가 있다면 [Orval](https://orval.dev), [Kubb](https://kubb.dev), [Hey API](https://heyapi.dev) 같은 명세 기반 도구도 검토해 보세요. 비교와 한계는 [구성과 의존성](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE.md)에 정리했습니다.
 
-
-## Demo and search discovery / 데모·검색 노출
+## Demo / 데모
 
 [한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
 
-The demo is built from the actual analyzer and generator and shows query, mutation and infinite-query option output. It does not call a live API. Both languages have visible explanatory content, canonical/hreflang, structured data, a sitemap and robots rules. Vercel builds run the package tests before publishing; GitHub integration deploys main to production and pull requests to previews. [Deployment and SEO](docs/SEO.md).
-
-The demo serves SUITE from its own `/fonts/` assets (license included), with a render-blocking stylesheet and an early font preload. The initial generated example is already in HTML; `demo.js` only attaches interaction handlers and does not replace the first screen.
+The demo shows query, mutation and infinite-query output produced by this package's analyzer and generator. It does not call a live API. Deployment notes: [docs/SEO.md](https://github.com/uiwwsw/react-query-helper/blob/main/docs/SEO.md).

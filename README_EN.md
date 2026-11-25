@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero-dark.svg" />
-    <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero.svg" alt="React Query Helper: Your API. Query-ready. TypeScript in, reusable options out." width="1120" />
+    <img src="https://raw.githubusercontent.com/uiwwsw/react-query-helper/main/assets/readme-hero.svg" alt="React Query Helper logo" width="1120" />
   </picture>
 </p>
 
@@ -137,16 +137,17 @@ If you do not commit generated files, run `query:generate` before the applicatio
 
 ## Find a Recipe
 
-| Task                                              | Guide                                                                                                                            |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Config files, paths, and ignore globs             | [Configuration](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#configuration)                       |
-| Choose query/mutation output per function         | [Generation and cache keys](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#generation-rules)        |
-| Mutation arguments, cancellation, overrides       | [Runtime options](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#runtime-options)                   |
-| Cursor pagination and `maxPages`                  | [Infinite queries](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#infinite-queries)                 |
-| Upgrade an existing 1.x application               | [Migration checklist](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x)             |
-| Unsupported syntax and custom plugins             | [Scope and extensions](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#scope-and-extensions)         |
-| Tests, local installation, npm publishing         | [Development and releases](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#development-and-releases) |
-| Findings behind this release and remaining limits | [Repository review](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                                       |
+| Task                                                                     | Guide                                                                                                                            |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Config files, paths, and ignore globs                                    | [Configuration](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#configuration)                       |
+| Choose query/mutation output per function                                | [Generation and cache keys](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#generation-rules)        |
+| Mutation arguments, cancellation, overrides                              | [Runtime options](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#runtime-options)                   |
+| Cursor pagination and `maxPages`                                         | [Infinite queries](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#infinite-queries)                 |
+| Upgrade an existing 1.x application                                      | [Migration checklist](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x)             |
+| Unsupported syntax and custom plugins                                    | [Scope and extensions](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#scope-and-extensions)         |
+| Tests, local installation, npm publishing                                | [Development and releases](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#development-and-releases) |
+| Module roles, dependencies, relation to TanStack Query and similar tools | [Architecture and dependencies](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE_EN.md)                  |
+| Findings behind this release and remaining limits                        | [Repository review](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                                       |
 
 ## Compatibility and Boundaries
 
@@ -167,9 +168,8 @@ If you do not commit generated files, run `query:generate` before the applicatio
 
 An independent community tool, not an official React or TanStack project.
 
-
-## Demo and search discovery / 데모·검색 노출
+## Demo / 데모
 
 [한국어 데모](https://react-query-helper.vercel.app/) · [English demo](https://react-query-helper.vercel.app/en/)
 
-The demo is built from the actual analyzer and generator and shows query, mutation and infinite-query option output. It does not call a live API. Both languages have visible explanatory content, canonical/hreflang, structured data, a sitemap and robots rules. Vercel builds run the package tests before publishing; GitHub integration deploys main to production and pull requests to previews. [Deployment and SEO](docs/SEO.md).
+The demo shows query, mutation and infinite-query output produced by this package's analyzer and generator. It does not call a live API. Deployment notes: [docs/SEO.md](https://github.com/uiwwsw/react-query-helper/blob/main/docs/SEO.md).
