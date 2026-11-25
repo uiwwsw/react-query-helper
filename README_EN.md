@@ -137,16 +137,17 @@ If you do not commit generated files, run `query:generate` before the applicatio
 
 ## Find a Recipe
 
-| Task                                              | Guide                                                                                                                            |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Config files, paths, and ignore globs             | [Configuration](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#configuration)                       |
-| Choose query/mutation output per function         | [Generation and cache keys](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#generation-rules)        |
-| Mutation arguments, cancellation, overrides       | [Runtime options](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#runtime-options)                   |
-| Cursor pagination and `maxPages`                  | [Infinite queries](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#infinite-queries)                 |
-| Upgrade an existing 1.x application               | [Migration checklist](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x)             |
-| Unsupported syntax and custom plugins             | [Scope and extensions](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#scope-and-extensions)         |
-| Tests, local installation, npm publishing         | [Development and releases](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#development-and-releases) |
-| Findings behind this release and remaining limits | [Repository review](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                                       |
+| Task                                                                     | Guide                                                                                                                            |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Config files, paths, and ignore globs                                    | [Configuration](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#configuration)                       |
+| Choose query/mutation output per function                                | [Generation and cache keys](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#generation-rules)        |
+| Mutation arguments, cancellation, overrides                              | [Runtime options](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#runtime-options)                   |
+| Cursor pagination and `maxPages`                                         | [Infinite queries](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#infinite-queries)                 |
+| Upgrade an existing 1.x application                                      | [Migration checklist](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x)             |
+| Unsupported syntax and custom plugins                                    | [Scope and extensions](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#scope-and-extensions)         |
+| Tests, local installation, npm publishing                                | [Development and releases](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#development-and-releases) |
+| Module roles, dependencies, relation to TanStack Query and similar tools | [Architecture and dependencies](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE_EN.md)                  |
+| Findings behind this release and remaining limits                        | [Repository review](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                                       |
 
 ## Compatibility and Boundaries
 
@@ -166,7 +167,6 @@ If you do not commit generated files, run `query:generate` before the applicatio
 [Changelog](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [Logo and brand assets](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md) · [MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE)
 
 An independent community tool, not an official React or TanStack project.
-
 
 ## Demo and search discovery / 데모·검색 노출
 

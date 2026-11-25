@@ -137,16 +137,17 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 
 ## 필요한 예제 찾기
 
-| 하고 싶은 일                        | 가이드                                                                                                          |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| 설정 파일, 경로, ignore glob 변경   | [설정](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#설정)                           |
-| 함수별 query/mutation 생성 제어     | [생성 규칙과 캐시 키](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#생성-규칙)       |
-| mutation 인자, 취소, 옵션 확장      | [런타임 옵션](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#런타임-옵션)             |
-| 커서 페이지네이션과 `maxPages`      | [무한 쿼리](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#무한-쿼리)                 |
-| 기존 1.x 프로젝트 업그레이드        | [마이그레이션 체크리스트](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전) |
-| 지원하지 않는 문법, 커스텀 플러그인 | [지원 범위와 확장](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#범위와-확장)        |
-| 테스트, 로컬 설치, npm 배포 설정    | [개발과 배포](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#개발과-배포)             |
-| 이번 개선의 근거와 남은 한계        | [저장소 검토 기록](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                       |
+| 하고 싶은 일                                           | 가이드                                                                                                          |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 설정 파일, 경로, ignore glob 변경                      | [설정](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#설정)                           |
+| 함수별 query/mutation 생성 제어                        | [생성 규칙과 캐시 키](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#생성-규칙)       |
+| mutation 인자, 취소, 옵션 확장                         | [런타임 옵션](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#런타임-옵션)             |
+| 커서 페이지네이션과 `maxPages`                         | [무한 쿼리](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#무한-쿼리)                 |
+| 기존 1.x 프로젝트 업그레이드                           | [마이그레이션 체크리스트](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전) |
+| 지원하지 않는 문법, 커스텀 플러그인                    | [지원 범위와 확장](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#범위와-확장)        |
+| 테스트, 로컬 설치, npm 배포 설정                       | [개발과 배포](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#개발과-배포)             |
+| 모듈별 역할, 의존성, TanStack Query·유사 도구와의 관계 | [구성과 의존성](https://github.com/uiwwsw/react-query-helper/blob/main/docs/ARCHITECTURE.md)                    |
+| 이번 개선의 근거와 남은 한계                           | [저장소 검토 기록](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REVIEW.md)                       |
 
 ## 지원 환경과 주의점
 
@@ -166,7 +167,6 @@ check는 파일을 수정하지 않고 누락·변경·오래된 결과를 발�
 [변경 이력](https://github.com/uiwwsw/react-query-helper/blob/main/CHANGELOG.md) · [로고와 브랜드 자산](https://github.com/uiwwsw/react-query-helper/blob/main/assets/README.md) · [MIT License](https://github.com/uiwwsw/react-query-helper/blob/main/LICENSE)
 
 독립적인 커뮤니티 도구이며 React 또는 TanStack의 공식 프로젝트가 아닙니다.
-
 
 ## Demo and search discovery / 데모·검색 노출
 
