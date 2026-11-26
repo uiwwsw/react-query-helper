@@ -8,7 +8,7 @@
 <h1 align="center">React Query Helper</h1>
 
 <p align="center">
-  A CLI and runtime helpers that generate query keys and TanStack Query v5 option factories (code that calls <code>queryOptions</code>, <code>infiniteQueryOptions</code> and <code>mutationOptions</code>) from TypeScript API function files.
+  Keep your existing TypeScript API functions; generate and sync the TanStack Query layer (query keys and options) on top of them
 </p>
 
 <p align="center">
@@ -30,43 +30,56 @@
 
 > **Version notice:** This README describes **2.x**. Check the npm badge above for the published version. If you use 1.x, read the [1.3.0 docs](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README_EN.md) and [migration guide](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x). To try changes not yet published, [install from source](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#install-from-source-before-npm-publication).
 
-Keep the TypeScript API functions you already have; the CLI generates query keys and TanStack Query v5 option factories (`queryOptions`, `infiniteQueryOptions`, `mutationOptions`) from them. Your API code is not changed, and no OpenAPI spec is needed.
+**No OpenAPI required. Keep your existing API. Automate the query layer.** React Query Helper generates query keys and TanStack Query v5 option factories (`queryOptions`, `infiniteQueryOptions`, `mutationOptions`) from the TypeScript API functions you already have, and regenerates them when the API changes.
+
+## Why React Query Helper?
+
+TanStack Query already provides `queryOptions` for reusable, type-safe query definitions. But you still connect each API function to those options by hand:
+
+```ts
+export const userOptions = (id: string) =>
+  queryOptions({ queryKey: ["users", id], queryFn: () => getUser(id) });
+```
+
+Across hundreds of API functions and several developers, key naming, the link between functions and options, and keeping them in sync when arguments change become repetitive work. React Query Helper fixes that connection in a generator. TanStack Query still handles caching, retries and fetching; this tool generates only the code that connects your API to it.
 
 ## How it differs
 
-- **Your API code stays as it is.** Generated files go to `outputDir` and only import your API functions, so existing `fetch` or axios wrappers with auth headers, interceptors and error handling keep working. [Orval](https://orval.dev), [Kubb](https://kubb.dev) and [Hey API](https://heyapi.dev) generate the API functions themselves from an OpenAPI spec, so hand-written API functions are replaced by generated ones (you can plug in your own fetch instance).
-- **No spec required.** It works from TypeScript functions alone, including projects whose backend has no OpenAPI spec.
-- **No hand-written keys.** [`@lukemorales/query-key-factory`](https://github.com/lukemorales/query-key-factory) needs the key structure written by hand; this tool derives keys from the file path and function name and generates the option factories too.
-- **Types come from the original function.** Arguments, return values and `select` results are inferred, not declared again.
-- **It follows API changes.** `watch` regenerates, and `generate --check` catches stale generated files in CI.
+- **Your API layer stays.** Generated files go to `outputDir` and only import your API functions, so existing `fetch` or axios wrappers with auth headers, interceptors, error handling and response transforms, and your business logic, stay as they are. [Orval](https://orval.dev), [Kubb](https://kubb.dev) and [Hey API](https://heyapi.dev) generate the API functions themselves from an OpenAPI spec, so hand-written API functions are replaced by generated ones (you can plug in your own fetch instance).
+- **No spec required.** The input is the TypeScript functions you already have, including projects whose OpenAPI or Swagger spec is missing or out of date.
+- **One key convention, automatically.** `getUser` in `libs/users/api.ts` becomes `["users", "api", "getUser"]`, so developers stop inventing their own key names. [`@lukemorales/query-key-factory`](https://github.com/lukemorales/query-key-factory) needs the key structure declared by hand; this tool also generates the option factories.
+- **No repeated type declarations.** Arguments, return values and `select` results are inferred from the original function.
+- **Generated code is ordinary TypeScript.** Real `.ts` files, not runtime API discovery, so they show up in code review and you can jump to definitions in your IDE. There is no extra cache or query engine.
+- **API and query layer stay in sync.** `watch` regenerates on API changes, and `generate --check` catches stale generated files in CI.
+- **Adapts to your project.** Choose artifacts per function (`artifactsByName`), or replace the analyzer (`customAnalyzerPath`) and template (`customTemplatePath`).
+
+## Made for projects like these
+
+- An existing `fetch` or axios API layer with auth and error handling
+- A backend without an OpenAPI spec, or with one that does not match reality
+- Many API functions and several developers who need one query key convention
+- Teams standardizing TanStack Query usage without rewriting existing code
 
 ## What works now
 
-- `generate`: for each top-level function in `sourceDir`, writes a key constant and query, infinite-query and mutation option factories to `*Options.ts`.
-- Keys are built from the source path's directories, the file name and the function name.
-- The function name prefix (`get`, `list`, `create` and so on) picks what is generated. Configuration can change this.
+- `generate`: for each top-level function in `sourceDir`, writes a key constant and query, infinite query and mutation option factories to `*Options.ts`.
+- The function-name prefix picks the artifacts: `get`, `list`, `fetch` and similar get query and infinite query; `create`, `update`, `delete` and similar get a mutation; other names get query and mutation. `artifactsByName` and `enabledArtifacts` set them explicitly.
+- Infinite query options take their paging rules from `withOptions` (`initialPageParam`, `getNextPageParam`); without them only the first page loads.
 - Mutations of functions with two or more arguments get a variables object type and `mapVariablesToArgs`.
-- `withOptions` overrides `staleTime`, `select` and similar; argument, result and `select` result types are inferred.
-- `generate --check`: writes nothing and exits with code 1 when output is missing, changed or stale.
-- `watch`: regenerates when the sources, the config file or a listed local plugin changes.
-- Generated files carry an ownership header on the first line; an existing file without it is not overwritten and causes an error.
-- `customAnalyzerPath` and `customTemplatePath` replace the analyzer and the template.
+- `withOptions` overrides `staleTime`, `select` and others, with argument, return and `select` result types inferred.
+- `generate --check` writes nothing and exits with code 1 when output is missing, changed or stale.
+- `watch` regenerates when sources, the config or listed local plugins change.
+- An ownership header on the first line marks generated files; unmarked existing files are never overwritten.
 
-## Not done / planned
+## Planned
 
-- Reading OpenAPI, Swagger or other spec files.
-- Hook generation. `useQuery` and the rest are called from TanStack Query directly.
-- HTTP client generation. Your existing API functions are called as they are.
-- Clients other than React (Vue, Svelte, Solid and so on). Only TanStack Query v5 for React is targeted.
-- Mock generation.
-- Guessing pagination cursors or forwarding `AbortSignal`. Both are configured per API.
-- Analysis of re-export barrels, class or object methods, and functions returned by higher-order functions.
-- Preserving every generic/overload relationship in the option factory types.
-- Deducing HTTP semantics from function names. When a name does not follow the prefix rules, set it with `artifactsByName`.
-- `watch` noticing changes in external files that the config imports. A restart is needed.
-- Directory-wide transactions. Writes are atomic per file only.
-- Running generated files directly in Node ESM. They target TypeScript bundlers.
-- Automatic migration of unmarked 1.x generated files. They must be moved by hand.
+- **Choose artifacts with JSDoc,** such as `/** @rqh mutation */` next to the function. Today `artifactsByName` in the config does this.
+- **Infinite queries on request,** generated only for functions that paginate. Today `enabledArtifacts` or `artifactsByName` turn them off.
+- **Keys that survive file moves,** with a namespace independent of the file path so refactoring does not change cache keys.
+- **Preview before installing:** paste API functions into the demo and see the keys and options that would be generated.
+- **Wider analysis:** re-export barrels, class and object methods, functions returned by higher-order functions.
+- **Beyond React:** TanStack Query for Vue, Solid and Svelte.
+- **Optional OpenAPI input,** generating new spec-based APIs and existing functions from one config.
 
 <a id="quick-start"></a>
 

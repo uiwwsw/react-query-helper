@@ -8,7 +8,7 @@
 <h1 align="center">React Query Helper</h1>
 
 <p align="center">
-  TypeScript API 함수 파일에서 쿼리 키와 TanStack Query v5 옵션 팩토리(<code>queryOptions</code>, <code>infiniteQueryOptions</code>, <code>mutationOptions</code> 호출 코드)를 생성하는 CLI와 런타임 헬퍼입니다.
+  기존 TypeScript API 함수는 그대로 두고, 그 위의 TanStack Query 계층(쿼리 키·옵션)을 생성하고 동기화하는 코드 생성 도구
 </p>
 
 <p align="center">
@@ -30,43 +30,56 @@
 
 > **버전 안내:** 이 문서는 **2.x** 기준입니다. 실제 게시 버전은 위 npm 배지에서 확인하세요. 1.x를 사용 중이라면 [1.3.0 문서](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README.md)와 [마이그레이션 가이드](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전)를 참고하세요. 아직 게시되지 않은 변경은 [소스에서 설치](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#npm-게시-전-소스에서-설치하기)할 수 있습니다.
 
-이미 쓰고 있는 TypeScript API 함수를 그대로 두고, CLI가 그 함수에서 쿼리 키와 TanStack Query v5 옵션 팩토리(`queryOptions`, `infiniteQueryOptions`, `mutationOptions`)를 자동으로 생성합니다. API 코드는 한 줄도 바꾸지 않고, OpenAPI 명세도 필요 없습니다.
+**OpenAPI 없이, 기존 API는 그대로, Query 계층은 자동으로.** 이미 쓰고 있는 TypeScript API 함수에서 쿼리 키와 TanStack Query v5 옵션 팩토리(`queryOptions`, `infiniteQueryOptions`, `mutationOptions`)를 생성하고, API가 바뀌면 다시 맞춥니다.
+
+## 왜 필요한가
+
+TanStack Query는 `queryOptions`로 쿼리 키와 조회 함수를 묶어 재사용하는 방식을 공식으로 제공합니다. 다만 그 연결은 API 함수마다 사람이 직접 써야 합니다.
+
+```ts
+export const userOptions = (id: string) =>
+  queryOptions({ queryKey: ["users", id], queryFn: () => getUser(id) });
+```
+
+API 함수가 수백 개가 되고 여러 사람이 함께 관리하면, 키 이름 규칙, 함수와 옵션의 연결, 인자가 바뀔 때의 동기화가 매번 반복되는 일이 됩니다. React Query Helper는 이 연결을 생성기로 고정합니다. 캐싱, 재시도, 데이터 요청은 지금처럼 TanStack Query가 하고, 이 도구는 그 앞의 연결 코드만 만듭니다.
 
 ## 다른 도구와 다른 점
 
-- **API 코드를 건드리지 않습니다.** 생성 파일은 `outputDir`에 따로 만들어지고 원본 API 함수를 import만 합니다. 인증 헤더, 인터셉터, 에러 처리를 넣어 둔 기존 `fetch`·axios 래퍼를 그대로 씁니다. [Orval](https://orval.dev), [Kubb](https://kubb.dev), [Hey API](https://heyapi.dev)는 OpenAPI 명세에서 API 함수 자체를 생성하므로, 손으로 쓴 API 함수가 생성된 함수로 대체됩니다(fetch 인스턴스는 직접 지정할 수 있습니다).
-- **명세 없이 TypeScript 함수만으로 동작합니다.** 백엔드가 OpenAPI 명세를 제공하지 않는 프로젝트에서도 씁니다.
-- **키를 손으로 선언하지 않습니다.** [`@lukemorales/query-key-factory`](https://github.com/lukemorales/query-key-factory)는 키 구조를 직접 작성해야 하지만, 이 도구는 파일 경로와 함수명으로 키를 만들고 옵션 팩토리까지 생성합니다.
-- **타입이 원본 함수에서 그대로 추론됩니다.** 인자, 반환값, `select` 결과 타입을 따로 선언하지 않습니다.
-- **API가 바뀌면 따라갑니다.** `watch`가 다시 생성하고, `generate --check`는 CI에서 오래된 생성 파일을 잡아냅니다.
+- **기존 API 계층을 그대로 씁니다.** 생성 파일은 `outputDir`에 따로 만들어지고 원본 API 함수를 import만 합니다. 인증 헤더, 인터셉터, 에러 처리, 응답 변환을 넣어 둔 기존 `fetch`·axios 래퍼와 비즈니스 로직이 그대로 남습니다. [Orval](https://orval.dev), [Kubb](https://kubb.dev), [Hey API](https://heyapi.dev)는 OpenAPI 명세에서 API 함수 자체를 생성하므로, 손으로 쓴 API 함수가 생성된 함수로 대체됩니다(fetch 인스턴스는 직접 지정할 수 있습니다).
+- **명세 없이 동작합니다.** 입력은 이미 있는 TypeScript 함수입니다. OpenAPI·Swagger 명세가 없거나 최신이 아닌 프로젝트에서도 씁니다.
+- **키 규칙이 자동으로 통일됩니다.** `libs/users/api.ts`의 `getUser`는 `["users", "api", "getUser"]`가 됩니다. 사람마다 다른 키 이름을 쓰는 문제가 없습니다. [`@lukemorales/query-key-factory`](https://github.com/lukemorales/query-key-factory)는 키 구조를 직접 선언해야 하고, 이 도구는 옵션 팩토리까지 생성합니다.
+- **타입을 다시 선언하지 않습니다.** 인자, 반환값, `select` 결과 타입이 원본 함수에서 추론됩니다.
+- **생성물은 평범한 TypeScript 파일입니다.** 런타임에 API를 탐색하지 않고 실제 `.ts` 파일을 만들기 때문에, 코드 리뷰에서 보이고 IDE에서 정의로 따라갈 수 있습니다. 별도의 캐시나 쿼리 엔진도 없습니다.
+- **API와 Query 계층이 어긋나지 않습니다.** `watch`가 API 변경을 감지해 다시 생성하고, `generate --check`가 CI에서 오래된 생성 파일을 잡아냅니다.
+- **규칙을 프로젝트에 맞출 수 있습니다.** 함수별 생성 종류(`artifactsByName`), 분석기(`customAnalyzerPath`), 템플릿(`customTemplatePath`)을 바꿀 수 있습니다.
+
+## 이런 프로젝트에 맞습니다
+
+- 인증·에러 처리가 들어간 `fetch`·axios API 계층이 이미 있는 프로젝트
+- 백엔드가 OpenAPI 명세를 제공하지 않거나 명세가 실제와 다른 프로젝트
+- API 함수가 많고, 여러 개발자가 같은 쿼리 키 규칙으로 일해야 하는 팀
+- 기존 코드를 크게 바꾸지 않고 TanStack Query 사용 규칙을 표준화하려는 팀
 
 ## 지금 되는 것
 
 - `generate`: `sourceDir`의 최상위 함수마다 키 상수와 query, infinite query, mutation 옵션 팩토리를 `*Options.ts`로 생성합니다.
-- 키는 소스 경로의 디렉토리, 파일명, 함수명으로 만듭니다.
-- 함수 이름 접두사(`get`, `list`, `create` 등)로 생성 종류를 고릅니다. 설정으로 바꿀 수 있습니다.
+- 함수 이름 접두사로 생성 종류를 고릅니다. `get`·`list`·`fetch` 등은 query와 infinite query, `create`·`update`·`delete` 등은 mutation, 그 밖의 이름은 query와 mutation입니다. `artifactsByName`과 `enabledArtifacts`로 직접 지정할 수 있습니다.
+- infinite query 옵션은 다음 페이지 규칙을 `withOptions`의 `initialPageParam`·`getNextPageParam`으로 지정해 씁니다. 지정하지 않으면 첫 페이지만 불러옵니다.
 - 인자가 둘 이상인 함수의 mutation에 변수 객체 타입과 `mapVariablesToArgs`를 생성합니다.
 - `withOptions`로 `staleTime`, `select` 등을 덮어쓰고, 인자·반환·`select` 결과 타입이 추론됩니다.
 - `generate --check`: 파일을 쓰지 않고 누락·변경·오래된 결과가 있으면 종료 코드 1을 반환합니다.
 - `watch`: 소스, 설정 파일, 지정한 로컬 플러그인이 바뀌면 다시 생성합니다.
 - 생성 파일 첫 줄의 소유 표시로 구분해, 표시 없는 기존 파일은 덮어쓰지 않고 오류로 처리합니다.
-- `customAnalyzerPath`, `customTemplatePath`로 분석기와 템플릿을 교체할 수 있습니다.
 
-## 아직 안 되는 것 / 진행 예정
+## 진행 예정
 
-- OpenAPI, Swagger 등 명세 파일 읽기.
-- 훅 생성. `useQuery` 등은 TanStack Query의 것을 직접 호출합니다.
-- HTTP 클라이언트 생성. 기존 API 함수를 그대로 호출합니다.
-- React 외 클라이언트(Vue, Svelte, Solid 등). TanStack Query v5 React만 대상입니다.
-- 목(mock) 생성.
-- 페이지네이션 커서와 `AbortSignal` 전달의 자동 추측. API마다 직접 설정합니다.
-- re-export barrel, 클래스·객체 메서드, 고차 함수가 반환한 함수 분석.
-- 모든 generic/overload 관계를 옵션 팩토리 타입으로 보존하는 변환.
-- 함수 이름만으로 HTTP 의미를 판단하는 것. 접두사 규칙에 맞지 않으면 `artifactsByName`으로 지정합니다.
-- `watch`가 설정이 import하는 외부 파일의 변경을 감지하는 것. 재시작이 필요합니다.
-- 디렉토리 전체 단위의 트랜잭션. 파일 단위로만 원자적으로 씁니다.
-- 생성 파일을 Node ESM에서 직접 실행하는 것. TS 번들러용입니다.
-- 표시 없는 1.x 생성 파일의 자동 이전. 수동으로 옮겨야 합니다.
+- **JSDoc으로 생성 종류 지정:** `/** @rqh mutation */`처럼 함수 옆에서 query·mutation을 정합니다. 지금은 설정의 `artifactsByName`으로 지정합니다.
+- **infinite query 선택 생성:** 페이지네이션을 지원하는 함수에만 만들도록 기본값을 바꿉니다. 지금은 `enabledArtifacts`·`artifactsByName`으로 끕니다.
+- **파일 이동에 흔들리지 않는 키:** 파일 위치와 무관한 키 네임스페이스를 지정해, 리팩터링이 캐시 키를 바꾸지 않게 합니다.
+- **생성 결과 미리보기:** 데모에서 API 함수를 붙여 넣으면 생성될 키와 옵션을 설치 전에 보여 줍니다.
+- **분석 범위 확장:** re-export barrel, 클래스·객체 메서드, 고차 함수가 반환한 함수.
+- **React 외 프레임워크:** Vue, Solid, Svelte용 TanStack Query.
+- **OpenAPI 선택 연동:** 명세가 있는 신규 API와 기존 함수를 한 설정에서 함께 생성.
 
 <a id="quick-start"></a>
 
