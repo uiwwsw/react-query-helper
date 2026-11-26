@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3
+
+- README leads with how the tool differs from OpenAPI generators and key factories. No code changes.
+
 ## 2.0.2
 
 - Shorten the README to what works, what is not done, and how it compares with OpenAPI-based generators; move the details into docs/GUIDE.md. No code changes.
