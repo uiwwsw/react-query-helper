@@ -30,7 +30,15 @@
 
 > **Version notice:** This README describes **2.x**. Check the npm badge above for the published version. If you use 1.x, read the [1.3.0 docs](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README_EN.md) and [migration guide](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#migrating-from-1x). To try changes not yet published, [install from source](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE_EN.md#install-from-source-before-npm-publication).
 
-A CLI and runtime helpers that read TypeScript API function files and generate query keys and TanStack Query v5 option factories (code that calls `queryOptions`, `infiniteQueryOptions` and `mutationOptions`). The input is existing TypeScript functions. It does not read OpenAPI specs. It has one maintainer and is not widely used.
+Keep the TypeScript API functions you already have; the CLI generates query keys and TanStack Query v5 option factories (`queryOptions`, `infiniteQueryOptions`, `mutationOptions`) from them. Your API code is not changed, and no OpenAPI spec is needed.
+
+## How it differs
+
+- **Your API code stays as it is.** Generated files go to `outputDir` and only import your API functions, so existing `fetch` or axios wrappers with auth headers, interceptors and error handling keep working. [Orval](https://orval.dev), [Kubb](https://kubb.dev) and [Hey API](https://heyapi.dev) generate the API functions themselves from an OpenAPI spec, so hand-written API functions are replaced by generated ones (you can plug in your own fetch instance).
+- **No spec required.** It works from TypeScript functions alone, including projects whose backend has no OpenAPI spec.
+- **No hand-written keys.** [`@lukemorales/query-key-factory`](https://github.com/lukemorales/query-key-factory) needs the key structure written by hand; this tool derives keys from the file path and function name and generates the option factories too.
+- **Types come from the original function.** Arguments, return values and `select` results are inferred, not declared again.
+- **It follows API changes.** `watch` regenerates, and `generate --check` catches stale generated files in CI.
 
 ## What works now
 
@@ -59,26 +67,6 @@ A CLI and runtime helpers that read TypeScript API function files and generate q
 - Directory-wide transactions. Writes are atomic per file only.
 - Running generated files directly in Node ESM. They target TypeScript bundlers.
 - Automatic migration of unmarked 1.x generated files. They must be moved by hand.
-
-## Where it stands
-
-Weekly npm downloads (last week, api.npmjs.org):
-
-| Package                                 |    Downloads |
-| --------------------------------------- | -----------: |
-| `@hey-api/openapi-ts`                   |    8,305,092 |
-| `orval`                                 |    4,328,761 |
-| `openapi-react-query`                   |      956,262 |
-| `@lukemorales/query-key-factory`        |      493,363 |
-| `@kubb/plugin-react-query`              |      140,067 |
-| `@uiwwsw/react-query-helper` (this one) |          202 |
-
-- It has almost no users and one maintainer. There is no adoption to compare with the tools above.
-- The larger tools generate types, clients, hooks, output for several frameworks and mocks from an OpenAPI spec. This package does none of that.
-- If you have an OpenAPI spec, use one of those tools.
-- This package fits one case: hand-written TypeScript API functions without a spec, from which you want keys and option factories.
-- `@lukemorales/query-key-factory` covers keys only, and you declare the key structure by hand. This package generates keys and option factories from file paths and function names.
-- With only a few queries, writing `queryOptions` directly is simpler. A comparison is in [Architecture and dependencies](docs/ARCHITECTURE_EN.md#similar-tools).
 
 <a id="quick-start"></a>
 

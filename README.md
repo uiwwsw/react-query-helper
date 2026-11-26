@@ -30,7 +30,15 @@
 
 > **버전 안내:** 이 문서는 **2.x** 기준입니다. 실제 게시 버전은 위 npm 배지에서 확인하세요. 1.x를 사용 중이라면 [1.3.0 문서](https://github.com/uiwwsw/react-query-helper/blob/v1.3.0/README.md)와 [마이그레이션 가이드](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#1x에서-이전)를 참고하세요. 아직 게시되지 않은 변경은 [소스에서 설치](https://github.com/uiwwsw/react-query-helper/blob/main/docs/REFERENCE.md#npm-게시-전-소스에서-설치하기)할 수 있습니다.
 
-TypeScript API 함수 파일을 읽어 쿼리 키와 TanStack Query v5 옵션 팩토리(`queryOptions`, `infiniteQueryOptions`, `mutationOptions`를 호출하는 코드)를 생성하는 CLI와 런타임 헬퍼입니다. 입력은 이미 있는 TypeScript 함수입니다. OpenAPI 명세는 읽지 않습니다. 제작자는 한 명이고, 아직 널리 쓰이지 않습니다.
+이미 쓰고 있는 TypeScript API 함수를 그대로 두고, CLI가 그 함수에서 쿼리 키와 TanStack Query v5 옵션 팩토리(`queryOptions`, `infiniteQueryOptions`, `mutationOptions`)를 자동으로 생성합니다. API 코드는 한 줄도 바꾸지 않고, OpenAPI 명세도 필요 없습니다.
+
+## 다른 도구와 다른 점
+
+- **API 코드를 건드리지 않습니다.** 생성 파일은 `outputDir`에 따로 만들어지고 원본 API 함수를 import만 합니다. 인증 헤더, 인터셉터, 에러 처리를 넣어 둔 기존 `fetch`·axios 래퍼를 그대로 씁니다. [Orval](https://orval.dev), [Kubb](https://kubb.dev), [Hey API](https://heyapi.dev)는 OpenAPI 명세에서 API 함수 자체를 생성하므로, 손으로 쓴 API 함수가 생성된 함수로 대체됩니다(fetch 인스턴스는 직접 지정할 수 있습니다).
+- **명세 없이 TypeScript 함수만으로 동작합니다.** 백엔드가 OpenAPI 명세를 제공하지 않는 프로젝트에서도 씁니다.
+- **키를 손으로 선언하지 않습니다.** [`@lukemorales/query-key-factory`](https://github.com/lukemorales/query-key-factory)는 키 구조를 직접 작성해야 하지만, 이 도구는 파일 경로와 함수명으로 키를 만들고 옵션 팩토리까지 생성합니다.
+- **타입이 원본 함수에서 그대로 추론됩니다.** 인자, 반환값, `select` 결과 타입을 따로 선언하지 않습니다.
+- **API가 바뀌면 따라갑니다.** `watch`가 다시 생성하고, `generate --check`는 CI에서 오래된 생성 파일을 잡아냅니다.
 
 ## 지금 되는 것
 
@@ -59,26 +67,6 @@ TypeScript API 함수 파일을 읽어 쿼리 키와 TanStack Query v5 옵션 �
 - 디렉토리 전체 단위의 트랜잭션. 파일 단위로만 원자적으로 씁니다.
 - 생성 파일을 Node ESM에서 직접 실행하는 것. TS 번들러용입니다.
 - 표시 없는 1.x 생성 파일의 자동 이전. 수동으로 옮겨야 합니다.
-
-## 현재 위치
-
-주간 npm 다운로드(최근 1주, api.npmjs.org 기준):
-
-| 패키지                                  |      다운로드 |
-| --------------------------------------- | ------------: |
-| `@hey-api/openapi-ts`                   |     8,305,092 |
-| `orval`                                 |     4,328,761 |
-| `openapi-react-query`                   |       956,262 |
-| `@lukemorales/query-key-factory`        |       493,363 |
-| `@kubb/plugin-react-query`              |       140,067 |
-| `@uiwwsw/react-query-helper` (이 패키지) |           202 |
-
-- 사용자가 사실상 없습니다. 관리자는 한 명입니다. 위 도구들과 비교할 만한 채택 사례가 없습니다.
-- 규모가 큰 도구는 OpenAPI 명세에서 타입, 클라이언트, 훅, 여러 프레임워크용 출력, 목까지 만듭니다. 이 패키지는 그중 어느 것도 하지 않습니다.
-- OpenAPI 명세가 있으면 위 도구를 쓰는 것이 맞습니다.
-- 이 패키지가 맞는 경우는 하나입니다. 명세 없이 손으로 쓴 TypeScript API 함수가 있고, 그 함수에서 키와 옵션 팩토리를 만들고 싶을 때입니다.
-- `@lukemorales/query-key-factory`는 키만 다루고, 키 구조를 손으로 선언합니다. 이 패키지는 키와 옵션 팩토리를 파일 경로와 함수명에서 생성합니다.
-- 쿼리가 몇 개뿐이면 `queryOptions`를 직접 쓰는 편이 단순합니다. 비교는 [구성과 의존성](docs/ARCHITECTURE.md#비슷한-도구)에 있습니다.
 
 <a id="quick-start"></a>
 
