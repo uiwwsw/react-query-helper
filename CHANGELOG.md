@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2
+
+- Shorten the README to what works, what is not done, and how it compares with OpenAPI-based generators; move the details into docs/GUIDE.md. No code changes.
+
 ## 2.0.1
 
 The v2.0.0 tag was not published to npm. This release includes all of the 2.0.0
