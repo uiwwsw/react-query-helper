@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.4
+
+- README and package description position the tool as a generator of the TanStack Query layer from existing API functions, with fit and roadmap sections. No code changes.
+
 ## 2.0.3
 
 - README leads with how the tool differs from OpenAPI generators and key factories. No code changes.

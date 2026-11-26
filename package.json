@@ -1,12 +1,12 @@
 {
   "name": "@uiwwsw/react-query-helper",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "license": "MIT",
-  "description": "CLI and runtime helpers that generate query keys and TanStack Query v5 option factories (queryOptions, infiniteQueryOptions, mutationOptions) from top-level TypeScript API functions.",
+  "description": "Generate and sync the TanStack Query v5 layer (query keys, queryOptions, infiniteQueryOptions, mutationOptions) from your existing TypeScript API functions. No OpenAPI spec needed; your API code stays as it is.",
   "keywords": [
     "react-query",
     "tanstack-query",
@@ -19,7 +19,9 @@
     "query-key-factory",
     "query-options",
     "mutation-options",
-    "infinite-query"
+    "infinite-query",
+    "existing-api",
+    "no-openapi"
   ],
   "homepage": "https://react-query-helper.vercel.app/",
   "bugs": {
