@@ -1,8 +1,9 @@
 name: CI
 on:
-  push:
-    branches: [main]
-  pull_request:
+  # Not on every commit: run by hand when needed, plus once a week.
+  workflow_dispatch:
+  schedule:
+    - cron: '41 1 * * 1'
 permissions:
   contents: read
 jobs:
